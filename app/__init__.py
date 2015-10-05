@@ -3,6 +3,7 @@ import os
 from flask import Flask
 
 from config import configs
+from flask._compat import string_types
 
 
 def create_app(config_name):
