@@ -9,13 +9,13 @@ def index():
     return jsonify(links={
         "notification.create": {
             "url": url_for('.create_notification', _external=True),
-            "method": "PUT"
+            "method": "POST"
         }
     }
     ), 200
 
 
-@main.route('/notification', methods=['PUT'])
+@main.route('/notification', methods=['POST'])
 def create_notification():
     return jsonify(
         message="I made a notification"
