@@ -1,4 +1,4 @@
-from flask import jsonify, url_for
+from flask import jsonify, url_for, current_app
 
 from .. import main
 
@@ -11,6 +11,7 @@ def index():
             "url": url_for(
                 '.create_notification',
                 _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
             "method": "POST"
         }

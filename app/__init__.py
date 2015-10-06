@@ -1,10 +1,8 @@
 import os
-from werkzeug.contrib.fixers import ProxyFix
 from flask import Flask
 
 from config import configs
 from flask._compat import string_types
-from .proxy_fix import init_app
 
 
 def create_app(config_name):
@@ -14,8 +12,6 @@ def create_app(config_name):
 
     application.config.from_object(configs[config_name])
     init_app(application)
-
-    # proxy_fix.init_app(application)
 
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)
