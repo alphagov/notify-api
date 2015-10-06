@@ -1,18 +1,21 @@
 import os
-
+from werkzeug.contrib.fixers import ProxyFix
 from flask import Flask
 
 from config import configs
 from flask._compat import string_types
+from .proxy_fix import init_app
 
 
 def create_app(config_name):
     application = Flask(__name__)
+
     application.config['NOTIFY_API_ENVIRONMENT'] = config_name
 
     application.config.from_object(configs[config_name])
-
     init_app(application)
+
+    proxy_fix.init_app(application)
 
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)
@@ -24,7 +27,6 @@ def init_app(app):
     for key, value in app.config.items():
         if key in os.environ:
             app.config[key] = convert_to_boolean(os.environ[key])
-    app.config['NOTIFY_API_ENVIRONMENT'] = os.environ.get('NOTIFY_API_ENVIRONMENT', 'development')
 
 
 def convert_to_boolean(value):

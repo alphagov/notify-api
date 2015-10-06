@@ -1,6 +1,7 @@
 
-class Config:
+class Config(object):
     DEBUG = False
+    NOTIFY_HTTP_PROTO = 'http'
 
 
 class Development(Config):
@@ -12,8 +13,8 @@ class Test(Config):
 
 
 class Live(Config):
-    """Base config for deployed environments"""
-    pass
+    NOTIFY_HTTP_PROTO = "https"
+
 
 configs = {
     'development': Development,
