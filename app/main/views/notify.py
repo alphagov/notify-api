@@ -1,4 +1,4 @@
-from flask import jsonify, url_for, current_app
+from flask import jsonify, url_for
 
 from .. import main
 

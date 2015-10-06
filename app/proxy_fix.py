@@ -14,5 +14,4 @@ class CustomProxyFix(object):
 
 
 def init_app(app):
-    app.wsgi_app = CustomProxyFix(app.wsgi_app,
-                                  app.config.get('NOTIFY_HTTP_PROTO', 'http'))
+    app.wsgi_app = CustomProxyFix(app.wsgi_app, app.config.get('NOTIFY_HTTP_PROTO', 'http'))
