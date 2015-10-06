@@ -9,6 +9,9 @@ def check_url_scheme():
     """
     On heroku builds need to ensure that http calls are redirected to https
     """
+    print(request.headers)
+    print(request.environ)
+    print(current_app.config)
     if current_app.config.get('NOTIFY_API_ENVIRONMENT', 'development') == 'live':
         scheme = request.environ.get('werkzeug.proxy_fix.orig_wsgi_url_scheme', 'http')
         preferred_scheme = current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
