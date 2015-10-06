@@ -2,6 +2,8 @@
 class Config(object):
     DEBUG = False
     NOTIFY_HTTP_PROTO = 'http'
+    AUTH_REQUIRED = True
+    API_TOKEN = 'valid-token'
 
 
 class Development(Config):
