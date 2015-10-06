@@ -1,4 +1,4 @@
-from flask import jsonify, url_for
+from flask import jsonify, url_for, current_app
 
 from .. import main
 
@@ -8,7 +8,10 @@ def index():
     """Entry point for the API, show the resources that are available."""
     return jsonify(links={
         "notification.create": {
-            "url": url_for('.create_notification', _external=True),
+            "url": url_for(
+                '.create_notification',
+                _external=True,
+            ),
             "method": "POST"
         }
     }
