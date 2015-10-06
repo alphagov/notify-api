@@ -15,7 +15,7 @@ def create_app(config_name):
     application.config.from_object(configs[config_name])
     init_app(application)
 
-    proxy_fix.init_app(application)
+    # proxy_fix.init_app(application)
 
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)
