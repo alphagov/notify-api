@@ -9,6 +9,8 @@ def check_url_scheme():
     """
     On heroku builds need to ensure that http calls are redirected to https
     """
+    print("****** START *********")
+    print(request.url)
     print(request.headers)
     print(request.environ)
     print(current_app.config)
