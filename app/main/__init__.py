@@ -22,6 +22,7 @@ def check_url_scheme():
         if scheme != preferred_scheme:
             print("redirecting")
             print(request.url.replace('http://', 'https://', 1))
+            print("****** END *********")
             return redirect(request.url.replace('http://', 'https://', 1), code=301)
 
 
