@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, request, redirect, abort
 main = Blueprint('main', __name__)
 
 from .views import notify
-from . import errors
+from . import errors, encryption
 
 
 def check_url_scheme():
@@ -28,7 +28,7 @@ def requires_authentication():
 
 
 def token_is_valid(incoming_token):
-    return incoming_token == current_app.config.get("API_TOKEN")
+    return encryption.checkpw(incoming_token, current_app.config.get("API_TOKEN"))
 
 
 def get_token_from_headers(headers):
