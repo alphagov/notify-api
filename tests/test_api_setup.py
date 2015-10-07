@@ -20,7 +20,7 @@ class TestApiSetUp(BaseApiTest):
         response = self.client.get('/')
         data = json.loads(response.get_data())
         assert 200 == response.status_code
-        assert data['links']['notification.create']['url'] == "https://localhost/notification"
+        assert data['links']['notification.create']['url'] == "https://localhost/sms/notification"
 
     def test_returns_404(self):
         response = self.client.get('/not-found')

@@ -1,0 +1,21 @@
+{
+  "id": "SMS notification creation",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "to": {
+      "type": "string",
+      "pattern": "^\\+44[\\d]{10}$"
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 1
+    }
+  },
+  "required": [
+    "to",
+    "message"
+  ]
+}
