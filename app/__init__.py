@@ -13,6 +13,8 @@ def create_app(config_name):
     application.config.from_object(configs[config_name])
     init_app(application)
 
+    print(application.config)
+
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)
 

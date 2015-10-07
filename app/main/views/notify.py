@@ -1,7 +1,7 @@
 from flask import jsonify, url_for, current_app
 
 from .. import main
-
+from ..connectors.sms.wrapper import TwilioClient
 
 @main.route('/')
 def index():
@@ -21,6 +21,8 @@ def index():
 
 @main.route('/notification', methods=['POST'])
 def create_notification():
+    client = TwilioClient()
+    client.send_message('', 'yo')
     return jsonify(
         message="I made a notification"
     )
