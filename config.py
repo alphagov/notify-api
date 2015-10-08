@@ -4,6 +4,7 @@ class Config(object):
     NOTIFY_HTTP_PROTO = 'http'
     AUTH_REQUIRED = True
     API_TOKEN = '$2a$10$JGHuLQA..8GKdKlHoKxa6exqRy0/awKAj7E9TCbVXteADL/Xg5i8C'
+    SMS_ENABLED = True
 
 
 class Development(Config):

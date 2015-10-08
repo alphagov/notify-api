@@ -1,7 +1,9 @@
-from flask import jsonify, url_for, current_app
-
+from flask import jsonify, url_for, current_app, request, abort
+from app.main.validators import valid_sms_notification
 from .. import main
 from ..connectors.sms.wrapper import TwilioClient
+from uuid import uuid4
+
 
 @main.route('/')
 def index():
@@ -9,7 +11,7 @@ def index():
     return jsonify(links={
         "notification.create": {
             "url": url_for(
-                '.create_notification',
+                '.create_sms_notification',
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
@@ -19,10 +21,34 @@ def index():
     ), 200
 
 
-@main.route('/notification', methods=['POST'])
-def create_notification():
-    client = TwilioClient()
-    client.send_message('', 'yo')
+@main.route('/sms/notification', methods=['POST'])
+def create_sms_notification():
+    if not current_app.config['SMS_ENABLED']:
+        return jsonify(error="SMS is unavailable"), 503
+
+    notification = get_json_from_request()
+
+    validation_result, validation_errors = valid_sms_notification(notification)
+    if not validation_result:
+        return jsonify(
+            error="Invalid JSON",
+            error_details=validation_errors
+        ), 400
+
     return jsonify(
-        message="I made a notification"
+        id=str(uuid4())
     )
+
+
+def get_json_from_request():
+    if request.content_type not in [
+        'application/json',
+        'application/json; charset=UTF-8'
+    ]:
+        abort(400, "Unexpected Content-Type, expecting 'application/json'")
+    data = request.get_json()
+    if data is None:
+        abort(400, "Invalid JSON; must be a valid JSON object")
+    if 'notification' not in data:
+        abort(400, "Invalid JSON; must have notification as root element")
+    return data['notification']
