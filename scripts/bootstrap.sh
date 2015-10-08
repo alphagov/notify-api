@@ -27,3 +27,10 @@ fi
 
 # Install Python development dependencies
 pip3 install -r requirements_for_test.txt
+
+# Create Postgres databases
+createdb notify
+createdb notify_test
+
+# Upgrade databases
+python application.py db upgrade

@@ -4,6 +4,7 @@ from .. import main
 from ... import sms_wrapper
 from uuid import uuid4
 
+from app.models import Organisation
 
 @main.route('/')
 def index():

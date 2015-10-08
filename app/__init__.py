@@ -2,12 +2,14 @@ import os
 
 from flask import Flask
 from flask._compat import string_types
+from flask.ext.sqlalchemy import SQLAlchemy
 
 from app.connectors.sms_wrapper import SmsWrapper
 from config import configs
 
 
 sms_wrapper = SmsWrapper()
+db = SQLAlchemy()
 
 
 def create_app(config_name):
@@ -16,6 +18,7 @@ def create_app(config_name):
     application.config['NOTIFY_API_ENVIRONMENT'] = config_name
     application.config.from_object(configs[config_name])
 
+    db.init_app(application)
     init_app(application)
     sms_wrapper.init_app(application)
 
