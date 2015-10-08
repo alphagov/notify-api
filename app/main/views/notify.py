@@ -22,6 +22,9 @@ def index():
 
 @main.route('/sms/notification', methods=['POST'])
 def create_sms_notification():
+    if not current_app.config['SMS_ENABLED']:
+        return jsonify(error="SMS is unavailable"), 503
+
     notification = get_json_from_request()
 
     validation_result, validation_errors = valid_sms_notification(notification)

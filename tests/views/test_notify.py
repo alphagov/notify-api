@@ -54,5 +54,20 @@ class TestSendingSmsNotification(BasePostApiTest):
         assert response.status_code == 400
         assert data['error'] == 'Invalid JSON'
         assert len(data['error_details']) == 1
-        print(data)
         assert data['error_details'][0]['required'] == ["'to' is a required property", "'message' is a required property"]  # noqa
+
+    def test_should_reject_request_if_kill_switch_enabled(self):
+        self.app.config['SMS_ENABLED'] = False
+        response = self.client.post(
+            '/sms/notification',
+            data=json.dumps({
+                "notification": {
+                    "to": "+441234512345",
+                    "message": "hello world"
+                }
+            }),
+            content_type='application/json'
+        )
+        data = json.loads(response.get_data())
+        assert data['error'] == 'SMS is unavailable'
+        assert response.status_code == 503
