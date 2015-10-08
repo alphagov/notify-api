@@ -14,3 +14,8 @@ def os_environ(request):
     request.addfinalizer(env_patch.stop)
 
     return env_patch.start()
+
+
+@pytest.fixture(autouse=True)
+def no_sms(monkeypatch):
+    monkeypatch.delattr("app.connectors.sms.clients.TwilioClient.send")

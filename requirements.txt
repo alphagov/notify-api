@@ -8,5 +8,5 @@ psycopg2==2.5.4
 SQLAlchemy==1.0.5
 SQLAlchemy-Utils==0.30.5
 docopt==0.6.2
+twilio==4.6.0
 jsonschema==2.3.0
-

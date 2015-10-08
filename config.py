@@ -9,6 +9,7 @@ class Config(object):
 
 class Development(Config):
     DEBUG = True
+    AUTH_REQUIRED = False
 
 
 class Test(Config):

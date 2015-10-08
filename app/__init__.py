@@ -1,17 +1,23 @@
 import os
-from flask import Flask
 
-from config import configs
+from flask import Flask
 from flask._compat import string_types
+
+from app.connectors.sms_wrapper import SmsWrapper
+from config import configs
+
+
+sms_wrapper = SmsWrapper()
 
 
 def create_app(config_name):
     application = Flask(__name__)
 
     application.config['NOTIFY_API_ENVIRONMENT'] = config_name
-
     application.config.from_object(configs[config_name])
+
     init_app(application)
+    sms_wrapper.init_app(application)
 
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)

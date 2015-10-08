@@ -1,6 +1,7 @@
 from flask import jsonify, url_for, current_app, request, abort
 from app.main.validators import valid_sms_notification
 from .. import main
+from ... import sms_wrapper
 from uuid import uuid4
 
 
@@ -33,9 +34,11 @@ def create_sms_notification():
             error="Invalid JSON",
             error_details=validation_errors
         ), 400
+    message_id = str(uuid4())
+    sms_wrapper.send(notification['to'], notification['message'], message_id)
 
     return jsonify(
-        id=str(uuid4())
+        id=message_id
     )
 
 

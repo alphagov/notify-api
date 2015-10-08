@@ -2,9 +2,6 @@ from flask import Blueprint, current_app, request, redirect, abort
 
 main = Blueprint('main', __name__)
 
-from .views import notify
-from . import errors, encryption
-
 
 def check_url_scheme():
     """
@@ -39,7 +36,6 @@ def get_token_from_headers(headers):
 
 
 main.before_request(check_url_scheme)
-
 main.before_request(requires_authentication)
 
 
@@ -47,3 +43,7 @@ main.before_request(requires_authentication)
 def add_cache_control(response):
     response.cache_control.max_age = 24 * 60 * 60
     return response
+
+
+from .views import notify
+from . import errors, encryption
