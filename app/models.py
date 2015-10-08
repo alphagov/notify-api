@@ -38,7 +38,7 @@ class Notification(db.Model):
     status = db.Column(db.String(255), nullable=False)
     type = db.Column(db.String(255), nullable=False)
 
-0
+
 class User(db.Model):
     __tablename__ = 'user'
 

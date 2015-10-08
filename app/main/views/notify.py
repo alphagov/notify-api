@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from app.models import Organisation
 
+
 @main.route('/')
 def index():
     """Entry point for the API, show the resources that are available."""
