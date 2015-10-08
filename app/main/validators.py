@@ -32,8 +32,16 @@ def get_validator(schema_name):
     return validator_for(schema)(schema, format_checker=FORMAT_CHECKER)
 
 
-def valid_sms_notificationb(submitted_json):
-    errors = get_validator('sms').iter_errors(submitted_json)
+def valid_sms_notification(submitted_json):
+    errors = sorted(get_validator('sms').iter_errors(submitted_json), key=lambda e: e.path)
     if errors:
-        return False
-    return True
+        return False, __process_errors(errors)
+    return True, []
+
+
+def __process_errors(errors):
+    required_field_errors = ([error.message for error in errors if error.schema_path.pop() == 'required'])
+    field_errors = [{'key': error.path.pop(), 'message': error.message} for error in errors if error.path]
+    if required_field_errors:
+        field_errors.append({"required": required_field_errors})
+    return field_errors
