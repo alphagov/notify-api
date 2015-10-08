@@ -1,11 +1,11 @@
 import os
 
 from flask import Flask
-
 from flask._compat import string_types
 
 from app.connectors.sms_wrapper import SmsWrapper
 from config import configs
+
 
 sms_wrapper = SmsWrapper()
 

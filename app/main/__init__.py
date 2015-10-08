@@ -2,6 +2,7 @@ from flask import Blueprint, current_app, request, redirect, abort
 
 main = Blueprint('main', __name__)
 
+
 def check_url_scheme():
     """
     On heroku builds need to ensure that http calls are redirected to https

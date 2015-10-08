@@ -1,6 +1,7 @@
 from app import create_app
 from flask import json
 import re
+import os
 
 
 class WSGIApplicationWithEnvironment(object):
@@ -17,6 +18,9 @@ class WSGIApplicationWithEnvironment(object):
 class BaseApiTest(object):
 
     def setup(self):
+        os.environ['TWILIO_ACCOUNT_SID'] = 'TEST'
+        os.environ['TWILIO_AUTH_TOKEN'] = 'TEST'
+        os.environ['TWILIO_NUMBER'] = 'TEST'
         self.app = create_app('test')
         self.client = self.app.test_client()
         self.setup_authorization()
