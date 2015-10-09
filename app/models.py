@@ -4,7 +4,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 class Organisation(db.Model):
-    __tablename__ = 'organisation'
+    __tablename__ = 'organisations'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
@@ -19,12 +19,12 @@ class Organisation(db.Model):
 
 
 class Service(db.Model):
-    __tablename__ = 'service'
+    __tablename__ = 'services'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     token = db.Column(db.String(255), nullable=False)
-    organisation_id = db.Column(db.BigInteger, db.ForeignKey('organisation.id'), index=True, unique=False)
+    organisation_id = db.Column(db.BigInteger, db.ForeignKey('organisations.id'), index=True, unique=False)
     organisation = db.relationship(Organisation, lazy='joined', innerjoin=True)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
@@ -40,11 +40,11 @@ class Service(db.Model):
 
 
 class Job(db.Model):
-    __tablename__ = 'job'
+    __tablename__ = 'jobs'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    service_id = db.Column(db.BigInteger, db.ForeignKey('service.id'), index=True, unique=False)
+    service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=False)
     service = db.relationship(Service, lazy='joined', innerjoin=True)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
@@ -60,10 +60,10 @@ class Job(db.Model):
 
 
 class Notification(db.Model):
-    __tablename__ = 'notification'
+    __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
-    job_id = db.Column(db.BigInteger, db.ForeignKey('job.id'), index=True, unique=False)
+    job_id = db.Column(db.BigInteger, db.ForeignKey('jobs.id'), index=True, unique=False)
     job = db.relationship(Job, lazy='joined', innerjoin=True)
     to = db.Column(db.String(255), nullable=False)
     message = db.Column(db.String(255), nullable=False)
@@ -87,7 +87,7 @@ class Notification(db.Model):
 
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(255), nullable=False, index=True)
@@ -98,7 +98,8 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
     password_changed_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
     role = db.Column(db.String, index=False, unique=False, nullable=False)
-    organisation_id = db.Column(db.Integer, db.ForeignKey('organisation.id'), index=True, unique=False, nullable=True)
+    organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
+    organisation = db.relationship(Organisation, lazy='joined', innerjoin=True)
 
 
 def filter_null_value_fields(obj):
