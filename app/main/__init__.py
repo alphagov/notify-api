@@ -45,5 +45,5 @@ def add_cache_control(response):
     return response
 
 
-from .views import notify
+from .views import notification, organisation, job, service, user, index
 from . import errors, encryption

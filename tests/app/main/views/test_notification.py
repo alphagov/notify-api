@@ -3,7 +3,6 @@ from tests.test_helpers import BasePostApiTest
 
 
 class TestSendingSmsNotification(BasePostApiTest):
-
     path = "/sms/notification"
 
     def test_should_allow_correctly_formed_sms_request(self):
@@ -54,7 +53,8 @@ class TestSendingSmsNotification(BasePostApiTest):
         assert response.status_code == 400
         assert data['error'] == 'Invalid JSON'
         assert len(data['error_details']) == 1
-        assert data['error_details'][0]['required'] == ["'to' is a required property", "'message' is a required property"]  # noqa
+        assert data['error_details'][0]['required'] == ["'to' is a required property",
+                                                        "'message' is a required property"]  # noqa
 
     def test_should_reject_request_if_kill_switch_enabled(self):
         self.app.config['SMS_ENABLED'] = False

@@ -4,24 +4,6 @@ from .. import main
 from ... import sms_wrapper
 from uuid import uuid4
 
-from app.models import Organisation
-
-
-@main.route('/')
-def index():
-    """Entry point for the API, show the resources that are available."""
-    return jsonify(links={
-        "notification.create": {
-            "url": url_for(
-                '.create_sms_notification',
-                _external=True,
-                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
-            ),
-            "method": "POST"
-        }
-    }
-    ), 200
-
 
 @main.route('/sms/notification', methods=['POST'])
 def create_sms_notification():
