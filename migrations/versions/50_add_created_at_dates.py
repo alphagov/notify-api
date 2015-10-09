@@ -8,7 +8,7 @@ Create Date: 2015-10-08 15:49:38.717412
 
 # revision identifiers, used by Alembic.
 revision = '50_add_created_at_dates'
-down_revision = '40_create_message'
+down_revision = '40_create_notification'
 
 from alembic import op
 import sqlalchemy as sa
