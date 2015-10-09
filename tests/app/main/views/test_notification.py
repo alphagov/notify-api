@@ -1,7 +1,5 @@
 from flask import json
 from tests.test_helpers import BasePostApiTest
-from app.models import Notification
-from app import db
 
 
 class TestSendingSmsNotification(BasePostApiTest):

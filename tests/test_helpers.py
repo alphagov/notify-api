@@ -19,15 +19,15 @@ class WSGIApplicationWithEnvironment(object):
 class BaseApiTest(object):
 
     def setup(self):
-        os.environ['TWILIO_ACCOUNT_SID'] = 'TEST'
-        os.environ['TWILIO_AUTH_TOKEN'] = 'TEST'
-        os.environ['TWILIO_NUMBER'] = 'TEST'
         self.app = create_app('test')
         self.client = self.app.test_client()
         self.setup_authorization()
 
     @classmethod
     def setup_class(cls):
+        os.environ['TWILIO_ACCOUNT_SID'] = 'TEST'
+        os.environ['TWILIO_AUTH_TOKEN'] = 'TEST'
+        os.environ['TWILIO_NUMBER'] = 'TEST'
         setup_module()
 
     @classmethod
