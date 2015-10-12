@@ -22,6 +22,32 @@ def index():
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
             "method": "GET"
+        },
+        "job.fetch": {
+            "url": url_for(
+                '.fetch_job',
+                job_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
+        "service.fetch": {
+            "url": url_for(
+                '.fetch_service',
+                service_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
+        "notification.fetch": {
+            "url": url_for(
+                '.fetch_notifications',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
         }
     }
     ), 200

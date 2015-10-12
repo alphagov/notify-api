@@ -1,9 +1,29 @@
+from datetime import datetime
 from flask import json
+from app import db
+from app.models import Organisation, Service, Job
 from tests.test_helpers import BasePostApiTest
 
 
 class TestSendingSmsNotification(BasePostApiTest):
     path = "/sms/notification"
+
+    def setup(self):
+        super(BasePostApiTest, self).setup()
+        with self.app.app_context():
+            org = Organisation(id=1234, name="org test")
+            service = Service(
+                id=1234,
+                name="service test",
+                token="valid-token",
+                organisation=org,
+                created_at=datetime.now()
+            )
+            job = Job(id=1234, name="job test", service=service, created_at=datetime.now())
+            db.session.add(org)
+            db.session.add(service)
+            db.session.add(job)
+            db.session.commit()
 
     def test_should_allow_correctly_formed_sms_request(self):
         response = self.client.post(

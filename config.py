@@ -17,6 +17,7 @@ class Development(Config):
 
 class Test(Config):
     DEBUG = True
+    AUTH_REQUIRED = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/notify_test'
 
 
