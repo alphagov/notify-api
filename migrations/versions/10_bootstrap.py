@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 10_boostrap
+Revision ID: 10_bootstrap
 Revises: None
-Create Date: 2015-10-09 13:24:15.191218
+Create Date: 2015-10-13 17:18:27.555086
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '10_boostrap'
+revision = '10_bootstrap'
 down_revision = None
 
 from alembic import op
@@ -21,16 +21,22 @@ def upgrade():
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('token',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('token', sa.String(length=255), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('services',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('token', sa.String(length=255), nullable=False),
-    sa.Column('organisation_id', sa.BigInteger(), nullable=True),
+    sa.Column('token_id', sa.BigInteger(), nullable=True),
+    sa.Column('organisations_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['organisation_id'], ['organisations.id'], ),
+    sa.ForeignKeyConstraint(['organisations_id'], ['organisations.id'], ),
+    sa.ForeignKeyConstraint(['token_id'], ['token.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_services_organisation_id'), 'services', ['organisation_id'], unique=False)
+    op.create_index(op.f('ix_services_token_id'), 'services', ['token_id'], unique=True)
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email_address', sa.String(length=255), nullable=False),
@@ -55,7 +61,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['service_id'], ['services.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_jobs_service_id'), 'jobs', ['service_id'], unique=False)
+    op.create_index(op.f('ix_jobs_service_id'), 'jobs', ['service_id'], unique=True)
     op.create_table('notifications',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('job_id', sa.BigInteger(), nullable=True),
@@ -81,7 +87,8 @@ def downgrade():
     op.drop_index(op.f('ix_users_organisation_id'), table_name='users')
     op.drop_index(op.f('ix_users_email_address'), table_name='users')
     op.drop_table('users')
-    op.drop_index(op.f('ix_services_organisation_id'), table_name='services')
+    op.drop_index(op.f('ix_services_token_id'), table_name='services')
     op.drop_table('services')
+    op.drop_table('token')
     op.drop_table('organisations')
     ### end Alembic commands ###

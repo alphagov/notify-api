@@ -9,6 +9,11 @@ class Config(object):
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/notify'
 
+    # Clients
+    TWILIO_ACCOUNT_SID = 'ACCOUNT_ID'
+    TWILIO_AUTH_TOKEN = 'AUTH_TOKEN'
+    TWILIO_NUMBER = '1234'
+
 
 class Development(Config):
     DEBUG = True
@@ -17,6 +22,7 @@ class Development(Config):
 
 class Test(Config):
     DEBUG = True
+    API_TOKEN = '$2a$10$egbx39iRQppzxwquEmYUDeM.S0qHnfuRP9JqZuwXAk6XCFGs/V3We'
     AUTH_REQUIRED = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/notify_test'
 

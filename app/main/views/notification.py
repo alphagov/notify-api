@@ -20,6 +20,7 @@ def fetch_notifications():
         notifications=[notification.serialize() for notification in notifications],
     )
 
+
 @main.route('/sms/notification', methods=['POST'])
 def create_sms_notification():
     if not current_app.config['SMS_ENABLED']:
@@ -87,6 +88,7 @@ def create_sms_notification():
 #         notification="notification.serialize()"
 #     )
 #
+
 
 def get_json_from_request():
     if request.content_type not in [

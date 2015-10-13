@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, request, redirect, abort
+from app.models import Token
 
 main = Blueprint('main', __name__)
 
@@ -25,7 +26,9 @@ def requires_authentication():
 
 
 def token_is_valid(incoming_token):
-    return encryption.checkpw(incoming_token, current_app.config.get("API_TOKEN"))
+    if Token.query.filter(Token.token == incoming_token).first():
+        return True
+    return False
 
 
 def get_token_from_headers(headers):

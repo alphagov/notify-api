@@ -17,15 +17,15 @@ class SmsClient:
 
 class TwilioClient(SmsClient):
 
-    def __init__(self):
-        (twilio_account_sid, twilio_auth_token, twilio_number) = self.__setup()
+    def __init__(self, app):
+        (twilio_account_sid, twilio_auth_token, twilio_number) = self.__setup(app)
         self.client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
         self.twilio_number = twilio_number
 
-    def __setup(self):
-        twilio_account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
-        twilio_auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
-        twilio_number = os.environ.get('TWILIO_NUMBER')
+    def __setup(self, app):
+        twilio_account_sid = app.config.get('TWILIO_ACCOUNT_SID')
+        twilio_auth_token = app.config.get('TWILIO_AUTH_TOKEN')
+        twilio_number = app.config.get('TWILIO_NUMBER')
 
         if not all([twilio_account_sid, twilio_auth_token, twilio_number]):
             raise RuntimeError("Twilio incorrectly configured")

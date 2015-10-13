@@ -8,14 +8,12 @@ from flask.ext.script import Manager
 from alembic.command import upgrade
 from alembic.config import Config
 from sqlalchemy.schema import MetaData
+from config import configs
 
 
 @pytest.fixture(scope='session')
 def notify_api(request):
     print("setting up notify-api")
-    os.environ['TWILIO_ACCOUNT_SID'] = 'TEST'
-    os.environ['TWILIO_AUTH_TOKEN'] = 'TEST'
-    os.environ['TWILIO_NUMBER'] = 'TEST'
     app = create_app('test')
     ctx = app.app_context()
     ctx.push()
@@ -45,17 +43,21 @@ def notify_db(notify_api, request):
 
     request.addfinalizer(teardown)
 
-    print("Done db setup")
 
 @pytest.fixture(scope='function')
 def notify_db_session(request):
-    """Creates a new database session for a test."""
     meta = MetaData(bind=db.engine, reflect=True)
 
     def teardown():
         for tbl in reversed(meta.sorted_tables):
             db.engine.execute(tbl.delete())
     request.addfinalizer(teardown)
+
+
+@pytest.fixture(scope='function')
+def notify_config(notify_api):
+    notify_api.config['NOTIFY_API_ENVIRONMENT'] = 'test'
+    notify_api.config.from_object(configs['test'])
 
 
 @pytest.fixture
