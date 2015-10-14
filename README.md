@@ -14,6 +14,8 @@ VirtualEnvWrapper
 Setting up a virtualenvwrapper for python3
 mkvirtualenv -p /usr/local/bin/python3 notify-api
 
+-- note using python3/pep3 for dependencies
+
 Setup - run bootstrap
 ./scripts/bootstrap.sh
 
