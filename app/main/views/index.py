@@ -32,6 +32,14 @@ def index():
             ),
             "method": "GET"
         },
+        "job.create": {
+            "url": url_for(
+                '.create_job',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "POST"
+        },
         "service.fetch": {
             "url": url_for(
                 '.fetch_service',
@@ -40,6 +48,14 @@ def index():
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
             "method": "GET"
+        },
+        "service.create": {
+            "url": url_for(
+                '.create_service',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "POST"
         },
         "notification.fetch": {
             "url": url_for(

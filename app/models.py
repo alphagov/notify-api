@@ -13,16 +13,15 @@ class Notification(db.Model):
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
     delivered_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     status = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(255), nullable=False)
+    method = db.Column(db.String(255), nullable=False)
 
     def serialize(self):
         serialized = {
             'id': self.id,
             'message': self.message,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
-            'deliveredAt': self.delivered_at.strftime(DATETIME_FORMAT),
             'status': self.status,
-            'type': self.type
+            'method': self.method
         }
 
         return filter_null_value_fields(serialized)
@@ -33,7 +32,7 @@ class Job(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=True)
+    service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=False)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
     notification = db.relationship(Notification, backref='notifications', lazy='joined', innerjoin=False)
 

@@ -1,18 +1,7 @@
-from app import db
-from app.models import Organisation, Service, Job
-from datetime import datetime
 from flask import json
 
 
-def test_should_be_able_to_get_job_by_id(notify_api, notify_db, notify_db_session):
-    org = Organisation(id=1234, name="org test")
-    service = Service(id=1234, name="service test", created_at=datetime.now())
-    job = Job(id=1234, name="job test", created_at=datetime.now())
-    service.job.append(job)
-    org.service.append(service)
-    db.session.add(org)
-    db.session.commit()
-
+def test_should_be_able_to_get_job_by_id(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().get('/job/1234')
     data = json.loads(response.get_data())
     assert response.status_code == 200
@@ -20,11 +9,60 @@ def test_should_be_able_to_get_job_by_id(notify_api, notify_db, notify_db_sessio
     assert data['job']['name'] == 'job test'
 
 
-def test_should_be_a_404_if_job_does_not_exist(notify_api, notify_db, notify_db_session):
+def test_should_be_a_404_if_job_does_not_exist(notify_api):
     response = notify_api.test_client().get('/job/12345')
     assert response.status_code == 404
 
 
-def test_should_be_a_404_if_job_id_is_not_an_int(notify_api, notify_db, notify_db_session):
+def test_should_be_a_404_if_job_id_is_not_an_int(notify_api):
     response = notify_api.test_client().get('/job/invalid-id')
     assert response.status_code == 404
+
+
+def test_should_be_able_to_create_a_job(notify_api, notify_db_session, notify_config):
+    response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps(
+            {
+                'job': {
+                    'serviceId': 1234,
+                    'name': 'my job'
+                }
+            }
+        ),
+        content_type='application/json')
+    data = json.loads(response.get_data())
+    assert response.status_code == 201
+    assert 'job' in data
+    assert 'id' in data['job']
+
+
+def test_should_reject_an_invalid_job(notify_api, notify_config):
+    response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps(
+            {
+                'job': {
+                    'serviceId': 'not-valid',
+                    'name': '1'
+                }
+            }
+        ),
+        content_type='application/json')
+    data = json.loads(response.get_data())
+    assert response.status_code == 400
+    assert data['error'] == 'Invalid JSON'
+    assert len(data['error_details']) == 2
+    assert {'key': 'serviceId',  'message': "'not-valid' is not of type 'integer'"} in data['error_details']
+    assert {'key': 'name',  'message': "'1' is too short"} in data['error_details']
+
+
+def test_should_reject_if_no_job_root_element(notify_api, notify_config):
+        response = notify_api.test_client().post(
+            '/job',
+            data=json.dumps({}),
+            content_type='application/json'
+        )
+        data = json.loads(response.get_data())
+        assert data['error'] == "Invalid JSON; must have job as root element"
+        assert response.status_code == 400

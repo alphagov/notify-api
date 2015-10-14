@@ -2,7 +2,7 @@
 
 Revision ID: 10_bootstrap
 Revises: None
-Create Date: 2015-10-13 17:18:27.555086
+Create Date: 2015-10-14 08:18:17.734371
 
 """
 
@@ -61,7 +61,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['service_id'], ['services.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_jobs_service_id'), 'jobs', ['service_id'], unique=True)
+    op.create_index(op.f('ix_jobs_service_id'), 'jobs', ['service_id'], unique=False)
     op.create_table('notifications',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('job_id', sa.BigInteger(), nullable=True),
@@ -70,7 +70,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('delivered_at', sa.DateTime(), nullable=True),
     sa.Column('status', sa.String(length=255), nullable=False),
-    sa.Column('type', sa.String(length=255), nullable=False),
+    sa.Column('method', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['job_id'], ['jobs.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

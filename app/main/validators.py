@@ -6,6 +6,8 @@ import os
 JSON_SCHEMAS_PATH = './json_schemas'
 SCHEMA_NAMES = [
     'sms',
+    'job',
+    'service'
 ]
 
 FORMAT_CHECKER = FormatChecker()
@@ -33,7 +35,19 @@ def get_validator(schema_name):
 
 
 def valid_sms_notification(submitted_json):
-    errors = sorted(get_validator('sms').iter_errors(submitted_json), key=lambda e: e.path)
+    return __validate_against_schema('sms', submitted_json)
+
+
+def valid_job_submission(submitted_json):
+    return __validate_against_schema('job', submitted_json)
+
+
+def valid_service_submission(submitted_json):
+    return __validate_against_schema('service', submitted_json)
+
+
+def __validate_against_schema(schema, submitted_json):
+    errors = sorted(get_validator(schema).iter_errors(submitted_json), key=lambda e: e.path)
     if errors:
         return False, __process_errors(errors)
     return True, []

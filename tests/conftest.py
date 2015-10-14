@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from flask import Flask
 import mock
 from app import create_app, db
@@ -8,6 +9,7 @@ from flask.ext.script import Manager
 from alembic.command import upgrade
 from alembic.config import Config
 from sqlalchemy.schema import MetaData
+from app.models import Organisation, Service, Job, Token
 from config import configs
 
 
@@ -32,6 +34,7 @@ def notify_db(notify_api, request):
     ALEMBIC_CONFIG = os.path.join(os.path.dirname(__file__), '../migrations/alembic.ini')
     config = Config(ALEMBIC_CONFIG)
     config.set_main_option("script_location", "migrations")
+
     with notify_api.app_context():
         upgrade(config, 'head')
 
@@ -48,6 +51,16 @@ def notify_db(notify_api, request):
 def notify_db_session(request):
     meta = MetaData(bind=db.engine, reflect=True)
 
+    org = Organisation(id=1234, name="org test")
+    service = Service(id=1234, name="service test", created_at=datetime.now())
+    job = Job(id=1234, name="job test", created_at=datetime.now())
+    token = Token(id=1234, token="1234")
+    token.service.append(service)
+    service.job.append(job)
+    org.service.append(service)
+    db.session.add(org)
+    db.session.commit()
+
     def teardown():
         for tbl in reversed(meta.sorted_tables):
             db.engine.execute(tbl.delete())
@@ -58,11 +71,6 @@ def notify_db_session(request):
 def notify_config(notify_api):
     notify_api.config['NOTIFY_API_ENVIRONMENT'] = 'test'
     notify_api.config.from_object(configs['test'])
-
-
-@pytest.fixture
-def app():
-    return Flask(__name__)
 
 
 @pytest.fixture

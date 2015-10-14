@@ -5,8 +5,7 @@ from . import main
 
 @main.app_errorhandler(400)
 def bad_request(e):
-    # TODO: log the error
-    return jsonify(error=e.description), 400
+    return jsonify(error=str(e.description)), 400
 
 
 @main.app_errorhandler(401)
