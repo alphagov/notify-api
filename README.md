@@ -19,5 +19,8 @@ mkvirtualenv -p /usr/local/bin/python3 notify-api
 Setup - run bootstrap
 ./scripts/bootstrap.sh
 
+Links from:
+python application.py list_routes
+
 uses pep8 for syntax checking
 -
