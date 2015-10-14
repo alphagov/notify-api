@@ -1,24 +1,21 @@
 {
-  "id": "SMS notification creation",
+  "id": "User authentication",
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "to": {
+    "emailAddress": {
       "type": "string",
-      "pattern": "^\\+44[\\d]{10}$"
+      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]+)+$"
     },
-    "message": {
+    "password": {
       "type": "string",
-      "maxLength": 160,
-      "minLength": 1
-    },
-    "jobId": {
-      "type": "integer"
+      "maxLength": 255,
+      "minLength": 10
     }
   },
   "required": [
-    "to",
-    "message"
+    "emailAddress",
+    "password"
   ]
 }
