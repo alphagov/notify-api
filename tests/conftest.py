@@ -1,6 +1,5 @@
 import pytest
 from datetime import datetime
-from flask import Flask
 import mock
 from app import create_app, db
 import os
@@ -9,8 +8,9 @@ from flask.ext.script import Manager
 from alembic.command import upgrade
 from alembic.config import Config
 from sqlalchemy.schema import MetaData
-from app.models import Organisation, Service, Job, Token
+from app.models import Organisation, Service, Job, Token, User
 from config import configs
+from app.main.encryption import generate_password_hash
 
 
 @pytest.fixture(scope='session')
@@ -50,14 +50,28 @@ def notify_db(notify_api, request):
 @pytest.fixture(scope='function')
 def notify_db_session(request):
     meta = MetaData(bind=db.engine, reflect=True)
+    #
+    # Setup a dummy user for tests
+    user = User(
+        email_address="test-user@example.org",
+        password=generate_password_hash('valid-password'),
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        role='admin'
+    )
 
+    # Set up dummy org, with a service and a job
     org = Organisation(id=1234, name="org test")
-    service = Service(id=1234, name="service test", created_at=datetime.now())
-    job = Job(id=1234, name="job test", created_at=datetime.now())
+    service = Service(id=1234, name="service test", created_at=datetime.utcnow())
+    job = Job(id=1234, name="job test", created_at=datetime.utcnow())
     token = Token(id=1234, token="1234")
     token.service.append(service)
     service.job.append(job)
     org.service.append(service)
+    org.user.append(user)
+
     db.session.add(org)
     db.session.commit()
 

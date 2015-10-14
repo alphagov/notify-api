@@ -7,7 +7,8 @@ JSON_SCHEMAS_PATH = './json_schemas'
 SCHEMA_NAMES = [
     'sms',
     'job',
-    'service'
+    'service',
+    'user_authentication'
 ]
 
 FORMAT_CHECKER = FormatChecker()
@@ -46,6 +47,10 @@ def valid_service_submission(submitted_json):
     return __validate_against_schema('service', submitted_json)
 
 
+def valid_user_authentication_submission(submitted_json):
+    return __validate_against_schema('user_authentication', submitted_json)
+
+
 def __validate_against_schema(schema, submitted_json):
     errors = sorted(get_validator(schema).iter_errors(submitted_json), key=lambda e: e.path)
     if errors:
@@ -56,6 +61,12 @@ def __validate_against_schema(schema, submitted_json):
 def __process_errors(errors):
     required_field_errors = ([error.message for error in errors if error.schema_path.pop() == 'required'])
     field_errors = [{'key': error.path.pop(), 'message': error.message} for error in errors if error.path]
+
+    for field_error in field_errors:
+        if field_error['key'] == 'password':
+            field_error['message'] = 'Invalid password'
+
     if required_field_errors:
         field_errors.append({"required": required_field_errors})
+
     return field_errors

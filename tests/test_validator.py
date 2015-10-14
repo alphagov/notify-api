@@ -1,4 +1,5 @@
-from app.main.validators import valid_sms_notification, valid_job_submission, valid_service_submission
+from app.main.validators import valid_sms_notification, valid_job_submission, \
+    valid_service_submission, valid_user_authentication_submission
 import pytest
 
 message = {
@@ -212,3 +213,82 @@ def service_test_cases():
 def test_should_validate_service_creation(service_test_cases):
     for case, result in service_test_cases:
         assert valid_service_submission(case) == result
+
+
+@pytest.yield_fixture
+def user_authentication_test_cases():
+    cases = [
+        (
+            {
+                "emailAddress": "valid@email.com",
+                "password": "valid-password"
+            },
+            (True, [])
+        ),
+        (
+            {
+                "emailAddress": "@email.com",
+                "password": "valid-password"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]+)+$'"
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.com",
+                "password": ""
+            },
+            (False, [
+                {
+                    'key': 'password',
+                    'message':  "Invalid password"
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.com",
+                "password": "123"
+            },
+            (False, [
+                {
+                    'key': 'password',
+                    'message':  "Invalid password"
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.com",
+                "password": "a" * 256
+            },
+            (False, [
+                {
+                    'key': 'password',
+                    'message':  "Invalid password"
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.com"
+            },
+            (False, [{'required': ["'password' is a required property"]}])
+        ),
+        (
+            {
+                "password": "valid-password"
+            },
+            (False, [{'required': ["'emailAddress' is a required property"]}])
+        )
+    ]
+    yield cases
+
+
+def test_should_validate_user_authentication(user_authentication_test_cases):
+    for case, result in user_authentication_test_cases:
+        assert valid_user_authentication_submission(case) == result

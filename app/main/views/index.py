@@ -6,6 +6,22 @@ from .. import main
 def index():
     """Entry point for the API, show the resources that are available."""
     return jsonify(links={
+        "user.fetch": {
+            "url": url_for(
+                '.fetch_user',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
+        "user.authenticate": {
+            "url": url_for(
+                '.auth_user',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "POST"
+        },
         "notification.create": {
             "url": url_for(
                 '.create_sms_notification',

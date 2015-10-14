@@ -53,16 +53,16 @@ def test_should_reject_an_invalid_job(notify_api, notify_config):
     assert response.status_code == 400
     assert data['error'] == 'Invalid JSON'
     assert len(data['error_details']) == 2
-    assert {'key': 'serviceId',  'message': "'not-valid' is not of type 'integer'"} in data['error_details']
-    assert {'key': 'name',  'message': "'1' is too short"} in data['error_details']
+    assert {'key': 'serviceId', 'message': "'not-valid' is not of type 'integer'"} in data['error_details']
+    assert {'key': 'name', 'message': "'1' is too short"} in data['error_details']
 
 
 def test_should_reject_if_no_job_root_element(notify_api, notify_config):
-        response = notify_api.test_client().post(
-            '/job',
-            data=json.dumps({}),
-            content_type='application/json'
-        )
-        data = json.loads(response.get_data())
-        assert data['error'] == "Invalid JSON; must have job as root element"
-        assert response.status_code == 400
+    response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps({}),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    assert data['error'] == "Invalid JSON; must have job as root element"
+    assert response.status_code == 400
