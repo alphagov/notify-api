@@ -5,8 +5,9 @@ Alpha for notify API. Sends emails/sms/printed content on behalf of government.
 
 ### technology
 
-Using python3:
-- brew install python3
+Depends on Python 3 and Postgresql, so do your equivalent of:
+
+`brew install python3 postgresql`
 
 VirtualEnvWrapper
 - http://virtualenvwrapper.readthedocs.org/en/latest/command_ref.html
