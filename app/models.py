@@ -21,7 +21,8 @@ class Notification(db.Model):
             'message': self.message,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'status': self.status,
-            'method': self.method
+            'method': self.method,
+            'jobId': self.job_id
         }
 
         return filter_null_value_fields(serialized)
