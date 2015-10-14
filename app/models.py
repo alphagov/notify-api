@@ -9,6 +9,8 @@ class Notification(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.BigInteger, db.ForeignKey('jobs.id'), index=True, unique=False)
+    job = db.relationship('Job', backref=db.backref('notifications', lazy='joined'))
+
     to = db.Column(db.String(255), nullable=False)
     message = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
@@ -23,7 +25,8 @@ class Notification(db.Model):
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'status': self.status,
             'method': self.method,
-            'jobId': self.job_id
+            'jobId': self.job_id,
+            'job': self.job.serialize()
         }
 
         return filter_null_value_fields(serialized)
@@ -34,15 +37,17 @@ class Job(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=False)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
-    notification = db.relationship(Notification, backref='notifications', lazy='joined', innerjoin=False)
+
+    service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=False)
+    service = db.relationship('Service', backref=db.backref('jobs', lazy='dynamic'))
 
     def serialize(self):
         serialized = {
             'id': self.id,
             'name': self.name,
-            'createdAt': self.created_at.strftime(DATETIME_FORMAT)
+            'createdAt': self.created_at.strftime(DATETIME_FORMAT),
+            'serviceId': self.service_id
         }
 
         return filter_null_value_fields(serialized)
@@ -53,11 +58,12 @@ class Service(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    token_id = db.Column(db.BigInteger, db.ForeignKey('token.id'), index=True, unique=True)
 
-    job = db.relationship(Job, backref='services', lazy='joined', innerjoin=False)
+    token_id = db.Column(db.BigInteger, db.ForeignKey('token.id'), index=True, unique=True)
+    token = db.relationship('Token', backref=db.backref('services', lazy='dynamic'))
 
     organisations_id = db.Column(db.Integer, db.ForeignKey('organisations.id'))
+    organisation = db.relationship('Organisation', backref=db.backref('services', lazy='dynamic'))
 
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
@@ -65,7 +71,8 @@ class Service(db.Model):
         serialized = {
             'id': self.id,
             'name': self.name,
-            'createdAt': self.created_at.strftime(DATETIME_FORMAT)
+            'createdAt': self.created_at.strftime(DATETIME_FORMAT),
+            'organisation': self.organisation.serialize()
         }
 
         return filter_null_value_fields(serialized)
@@ -85,6 +92,7 @@ class User(db.Model):
     failed_login_count = db.Column(db.Integer, nullable=False, default=0)
     role = db.Column(db.String, index=False, unique=False, nullable=False)
     organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
+    organisation = db.relationship('Organisation', backref=db.backref('users', lazy='dynamic'))
 
     def serialize(self):
         serialized = {
@@ -95,7 +103,7 @@ class User(db.Model):
             'updatedAt': self.updated_at.strftime(DATETIME_FORMAT),
             'passwordChangedAt': self.password_changed_at.strftime(DATETIME_FORMAT),
             'role': self.role,
-            'organisationId': self.organisation_id,
+            'organisation': self.organisation.serialize(),
             'failedLoginCount': self.failed_login_count
         }
 
@@ -107,8 +115,6 @@ class Organisation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    service = db.relationship(Service, backref='services', lazy='joined', innerjoin=False)
-    user = db.relationship(User, backref='users', lazy='joined', innerjoin=False)
 
     def serialize(self):
         serialized = {
@@ -124,7 +130,6 @@ class Token(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(255), nullable=False)
-    service = db.relationship(Service, backref='service', lazy='joined', innerjoin=False)
 
 
 def filter_null_value_fields(obj):

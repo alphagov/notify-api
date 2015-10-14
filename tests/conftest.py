@@ -50,7 +50,13 @@ def notify_db(notify_api, request):
 @pytest.fixture(scope='function')
 def notify_db_session(request):
     meta = MetaData(bind=db.engine, reflect=True)
-    #
+
+    # Set up dummy org, with a service and a job
+    org = Organisation(id=1234, name="org test")
+    token = Token(id=1234, token="1234")
+    service = Service(id=1234, name="service test", created_at=datetime.utcnow(), token=token, organisation=org)
+    job = Job(id=1234, name="job test", created_at=datetime.utcnow(), service=service)
+
     # Setup a dummy user for tests
     user = User(
         email_address="test-user@example.org",
@@ -59,20 +65,15 @@ def notify_db_session(request):
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
         password_changed_at=datetime.utcnow(),
-        role='admin'
+        role='admin',
+        organisation=org
     )
 
-    # Set up dummy org, with a service and a job
-    org = Organisation(id=1234, name="org test")
-    service = Service(id=1234, name="service test", created_at=datetime.utcnow())
-    job = Job(id=1234, name="job test", created_at=datetime.utcnow())
-    token = Token(id=1234, token="1234")
-    token.service.append(service)
-    service.job.append(job)
-    org.service.append(service)
-    org.user.append(user)
-
+    db.session.add(token)
     db.session.add(org)
+    db.session.add(service)
+    db.session.add(job)
+    db.session.add(user)
     db.session.commit()
 
     def teardown():

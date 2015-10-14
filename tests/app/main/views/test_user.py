@@ -13,7 +13,8 @@ def test_should_fetch_user_if_can_find_by_email(notify_api, notify_db, notify_db
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
-    assert data['users']['organisationId'] == 1234
+    assert data['users']['organisation']['id'] == 1234
+    assert data['users']['organisation']['name'] == 'org test'
     assert data['users']['role'] == 'admin'
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']
@@ -74,7 +75,8 @@ def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
     print(data)
     assert response.status_code == 200
     assert 'users' in data
-    assert data['users']['organisationId'] == 1234
+    assert data['users']['organisation']['id'] == 1234
+    assert data['users']['organisation']['name'] == 'org test'
     assert data['users']['role'] == 'admin'
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']

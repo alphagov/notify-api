@@ -59,17 +59,16 @@ def create_sms_notification():
         message=notification_request['message'],
         status='created',
         method='sms',
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
+        job=job
     )
-    job.notification.append(notification)
     try:
         db.session.add(job)
+        db.session.add(notification)
         db.session.commit()
         sms_wrapper.send(notification.to, notification.message, notification.id)
     except IntegrityError:
         db.session.rollback()
         abort(400, "Failed to create notification: DB error")
 
-    return jsonify(
-        notification=notification.serialize()
-    ), 201
+    return jsonify(notification=Notification.query.filter(Notification.id == notification.id).first().serialize()), 201
