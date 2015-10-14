@@ -1,4 +1,5 @@
 from . import db
+from flask import current_app
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
@@ -70,12 +71,44 @@ class Service(db.Model):
         return filter_null_value_fields(serialized)
 
 
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email_address = db.Column(db.String(255), nullable=False, index=True)
+    password = db.Column(db.String, index=False, unique=False, nullable=False)
+    active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
+    created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    updated_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    password_changed_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    logged_in_at = db.Column(db.DateTime, nullable=True)
+    failed_login_count = db.Column(db.Integer, nullable=False, default=0)
+    role = db.Column(db.String, index=False, unique=False, nullable=False)
+    organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
+
+    def serialize(self):
+        serialized = {
+            'emailAddress': self.email_address,
+            'active': self.active,
+            'locked': self.failed_login_count > current_app.config['MAX_FAILED_LOGIN_COUNT'],
+            'createdAt': self.created_at.strftime(DATETIME_FORMAT),
+            'updatedAt': self.updated_at.strftime(DATETIME_FORMAT),
+            'passwordChangedAt': self.password_changed_at.strftime(DATETIME_FORMAT),
+            'role': self.role,
+            'organisationId': self.organisation_id,
+            'failedLoginCount': self.failed_login_count
+        }
+
+        return filter_null_value_fields(serialized)
+
+
 class Organisation(db.Model):
     __tablename__ = 'organisations'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     service = db.relationship(Service, backref='services', lazy='joined', innerjoin=False)
+    user = db.relationship(User, backref='users', lazy='joined', innerjoin=False)
 
     def serialize(self):
         serialized = {
@@ -92,22 +125,6 @@ class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(255), nullable=False)
     service = db.relationship(Service, backref='service', lazy='joined', innerjoin=False)
-
-
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email_address = db.Column(db.String(255), nullable=False, index=True)
-    password = db.Column(db.String, index=False, unique=False, nullable=False)
-    active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
-    locked = db.Column(db.Boolean, index=False, unique=False, nullable=False)
-    created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
-    updated_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
-    password_changed_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
-    role = db.Column(db.String, index=False, unique=False, nullable=False)
-    organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
-    organisation = db.relationship(Organisation, lazy='joined', innerjoin=True)
 
 
 def filter_null_value_fields(obj):

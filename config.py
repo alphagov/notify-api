@@ -14,6 +14,8 @@ class Config(object):
     TWILIO_AUTH_TOKEN = 'AUTH_TOKEN'
     TWILIO_NUMBER = '1234'
 
+    MAX_FAILED_LOGIN_COUNT = 5
+
 
 class Development(Config):
     DEBUG = True
