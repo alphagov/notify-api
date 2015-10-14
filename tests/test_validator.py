@@ -1,4 +1,4 @@
-from app.main.validators import valid_sms_notification
+from app.main.validators import valid_sms_notification, valid_job_submission, valid_service_submission
 import pytest
 
 message = {
@@ -20,9 +20,26 @@ def sms_test_cases():
         (
             {
                 "to": "+447827992607",
+                "message": "This is a valid message",
+                "jobId": 123
+            },
+            (True, [])
+        ),
+        (
+            {
+                "to": "+447827992607",
+                "message": "This is a valid message",
+                "jobId": 'invalid'
+            },
+            (False, [{'key': 'jobId', 'message': "'invalid' is not of type 'integer'"}])
+        ),
+        (
+            {
+                "to": "+447827992607",
                 "message": "a" * 161  # too long
             },
-            (False, [{'key': 'message', 'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
+            (False, [{'key': 'message',
+                      'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
         ),
         (
             {
@@ -33,7 +50,7 @@ def sms_test_cases():
         ),
         (
             {
-               "to": "+447827992607"  # no message
+                "to": "+447827992607"  # no message
             },
             (False, [{'required': ["'message' is a required property"]}])
         ),
@@ -77,3 +94,121 @@ def sms_test_cases():
 def test_should_validate_uk_phone_numbers_only(sms_test_cases):
     for case, result in sms_test_cases:
         assert valid_sms_notification(case) == result
+
+
+@pytest.yield_fixture
+def job_test_cases():
+    cases = [
+        (
+            {
+                "serviceId": 1234,
+                "name": "This is a valid message"
+            },
+            (True, [])
+        ),
+        (
+            {
+                "serviceId": "not-valid",
+                "name": "This is a valid message"
+            },
+            (False, [
+                {
+                    'key': 'serviceId',
+                    'message': "'not-valid' is not of type 'integer'"
+                }
+            ])
+        ),
+        (
+            {
+                "serviceId": 1234,
+                "name": "a" * 161  # too long
+            },
+            (False, [{'key': 'name',
+                      'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
+        ),
+        (
+            {
+                "serviceId": 1234,
+                "name": "a"
+            },
+            (False, [{'key': 'name',
+                      'message': "'a' is too short"}])
+        ),
+        (
+            {
+                "serviceId": 1234,
+            },
+            (False, [{'required': ["'name' is a required property"]}])
+        ),
+        (
+            {
+                "name": "This is a valid message"
+            },
+            (False, [{'required': ["'serviceId' is a required property"]}])
+        ),
+    ]
+    yield cases
+
+
+def test_should_validate_job_creation(job_test_cases):
+    for case, result in job_test_cases:
+        assert valid_job_submission(case) == result
+
+
+@pytest.yield_fixture
+def service_test_cases():
+    cases = [
+        (
+            {
+                "organisationId": 1234,
+                "name": "This is a valid message"
+            },
+            (True, [])
+        ),
+        (
+            {
+                "organisationId": "not-valid",
+                "name": "This is a valid message"
+            },
+            (False, [
+                {
+                    'key': 'organisationId',
+                    'message': "'not-valid' is not of type 'integer'"
+                }
+            ])
+        ),
+        (
+            {
+                "organisationId": 1234,
+                "name": "a" * 161  # too long
+            },
+            (False, [{'key': 'name',
+                      'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
+        ),
+        (
+            {
+                "organisationId": 1234,
+                "name": "a"
+            },
+            (False, [{'key': 'name',
+                      'message': "'a' is too short"}])
+        ),
+        (
+            {
+                "organisationId": 1234,
+            },
+            (False, [{'required': ["'name' is a required property"]}])
+        ),
+        (
+            {
+                "name": "This is a valid message"
+            },
+            (False, [{'required': ["'organisationId' is a required property"]}])
+        ),
+    ]
+    yield cases
+
+
+def test_should_validate_service_creation(service_test_cases):
+    for case, result in service_test_cases:
+        assert valid_service_submission(case) == result

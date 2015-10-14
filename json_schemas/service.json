@@ -1,24 +1,20 @@
 {
-  "id": "SMS notification creation",
+  "id": "Notification service creation",
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "to": {
-      "type": "string",
-      "pattern": "^\\+44[\\d]{10}$"
-    },
-    "message": {
+    "name": {
       "type": "string",
       "maxLength": 160,
-      "minLength": 1
+      "minLength": 5
     },
-    "jobId": {
+    "organisationId": {
       "type": "integer"
     }
   },
   "required": [
-    "to",
-    "message"
+    "name",
+    "organisationId"
   ]
 }
