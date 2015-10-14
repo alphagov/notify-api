@@ -1,4 +1,3 @@
-from uuid import uuid4
 from flask import jsonify, current_app, request, abort
 from app.main.validators import valid_sms_notification
 from .. import main, get_token_from_headers
