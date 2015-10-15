@@ -8,8 +8,22 @@ from app.main.views import get_json_from_request
 from app.models import User
 
 
+@main.route('/users/<int:user_id>', methods=['GET'])
+def fetch_user_by_id(user_id):
+    user = User.query.filter(
+        User.id == user_id
+    ).first()
+
+    if not user:
+        abort(404, "No user with id '{}'".format(user_id))
+
+    return jsonify(
+        users=user.serialize()
+    ), 200
+
+
 @main.route('/users', methods=['GET'])
-def fetch_user():
+def fetch_user_by_email():
     email_address = request.args.get('email_address')
     if email_address:
         user = User.query.filter(

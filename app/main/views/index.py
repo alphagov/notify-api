@@ -6,9 +6,18 @@ from .. import main
 def index():
     """Entry point for the API, show the resources that are available."""
     return jsonify(links={
-        "user.fetch": {
+        "user.fetch_user_by_id": {
             "url": url_for(
-                '.fetch_user',
+                '.fetch_user_by_id',
+                user_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
+        "user.fetch_user_by_email": {
+            "url": url_for(
+                '.fetch_user_by_email',
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),

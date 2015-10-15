@@ -1,6 +1,26 @@
 from flask import json
 
 
+def test_should_by_404_for_non_numeric_user_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/users/invalid')
+    data = json.loads(response.get_data())
+    assert response.status_code == 404
+
+
+def test_should_fetch_user_if_can_find_by_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/users/1234')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert 'users' in data
+    assert data['users']['organisation']['id'] == 1234
+    assert data['users']['organisation']['name'] == 'org test'
+    assert data['users']['role'] == 'admin'
+    assert data['users']['emailAddress'] == 'test-user@example.org'
+    assert not data['users']['locked']
+    assert data['users']['active']
+    assert data['users']['failedLoginCount'] == 0
+
+
 def test_should_reject_fetch_user_request_with_no_email(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/users')
     data = json.loads(response.get_data())

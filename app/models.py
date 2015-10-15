@@ -96,6 +96,7 @@ class User(db.Model):
 
     def serialize(self):
         serialized = {
+            'id': self.id,
             'emailAddress': self.email_address,
             'active': self.active,
             'locked': self.failed_login_count > current_app.config['MAX_FAILED_LOGIN_COUNT'],

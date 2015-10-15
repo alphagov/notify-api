@@ -59,6 +59,7 @@ def notify_db_session(request):
 
     # Setup a dummy user for tests
     user = User(
+        id=1234,
         email_address="test-user@example.org",
         password=generate_password_hash('valid-password'),
         active=True,
