@@ -9,9 +9,7 @@
       "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]+)+$"
     },
     "password": {
-      "type": "string",
-      "maxLength": 255,
-      "minLength": 10
+      "type": "string"
     }
   },
   "required": [

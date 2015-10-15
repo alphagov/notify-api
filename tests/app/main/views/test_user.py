@@ -1,6 +1,26 @@
 from flask import json
 
 
+def test_should_by_404_for_non_numeric_user_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/users/invalid')
+    data = json.loads(response.get_data())
+    assert response.status_code == 404
+
+
+def test_should_fetch_user_if_can_find_by_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/users/1234')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert 'users' in data
+    assert data['users']['organisation']['id'] == 1234
+    assert data['users']['organisation']['name'] == 'org test'
+    assert data['users']['role'] == 'admin'
+    assert data['users']['emailAddress'] == 'test-user@example.org'
+    assert not data['users']['locked']
+    assert data['users']['active']
+    assert data['users']['failedLoginCount'] == 0
+
+
 def test_should_reject_fetch_user_request_with_no_email(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/users')
     data = json.loads(response.get_data())
@@ -38,25 +58,6 @@ def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_
     assert response.status_code == 400
     assert 'error_details' in data
     assert {'required': ["'emailAddress' is a required property"]} in data['error_details']
-
-
-def test_should_not_show_password_in_error_responses(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().post(
-        '/users/auth',
-        data=json.dumps(
-            {
-                'userAuthentication': {
-                    'emailAddress': 'test-user@example.org',
-                    'password': 'v'
-                }
-            }
-        ),
-        content_type='application/json')
-    data = json.loads(response.get_data())
-    print(data)
-    assert response.status_code == 400
-    assert 'error_details' in data
-    assert {'key': 'password', 'message': 'Invalid password'} in data['error_details']
 
 
 def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
