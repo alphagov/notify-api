@@ -60,25 +60,6 @@ def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_
     assert {'required': ["'emailAddress' is a required property"]} in data['error_details']
 
 
-def test_should_not_show_password_in_error_responses(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().post(
-        '/users/auth',
-        data=json.dumps(
-            {
-                'userAuthentication': {
-                    'emailAddress': 'test-user@example.org',
-                    'password': 'v'
-                }
-            }
-        ),
-        content_type='application/json')
-    data = json.loads(response.get_data())
-    print(data)
-    assert response.status_code == 400
-    assert 'error_details' in data
-    assert {'key': 'password', 'message': 'Invalid password'} in data['error_details']
-
-
 def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users/auth',

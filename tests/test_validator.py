@@ -239,18 +239,6 @@ def user_authentication_test_cases():
         ),
         (
             {
-                "emailAddress": "valid@email.com",
-                "password": "a" * 256
-            },
-            (False, [
-                {
-                    'key': 'password',
-                    'message':  "Invalid password"
-                }
-            ])
-        ),
-        (
-            {
                 "emailAddress": "valid@email.com"
             },
             (False, [{'required': ["'password' is a required property"]}])
