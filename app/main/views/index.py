@@ -74,10 +74,10 @@ def index():
             ),
             "method": "GET"
         },
-        "service.fetch_by_organisation": {
+        "service.fetch_service_by_organisation": {
             "url": url_for(
                 '.fetch_service_by_organisation',
-                orgabnisation_id="123",
+                organisation_id="123",
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
