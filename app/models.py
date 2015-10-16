@@ -133,6 +133,14 @@ class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(255), nullable=False)
 
+    def serialize(self):
+        serialized = {
+            'id': self.id,
+            'token': self.token
+        }
+
+        return filter_null_value_fields(serialized)
+
 
 def filter_null_value_fields(obj):
     return dict(

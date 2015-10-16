@@ -1,6 +1,20 @@
 from flask import json
 
 
+def test_should_be_able_to_get_token_by_service_by_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/service/1234/token')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert data['token']['id'] == 1234
+    assert data['token']['token'] == '1234'
+
+
+def test_should_return_404_if_no_token_by_service_by_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/service/12345/token')
+    data = json.loads(response.get_data())
+    assert response.status_code == 404
+
+
 def test_should_be_able_to_get_service_by_id(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/service/1234')
     data = json.loads(response.get_data())
