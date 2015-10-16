@@ -9,6 +9,49 @@ def test_should_be_able_to_get_service_by_id(notify_api, notify_db, notify_db_se
     assert data['service']['name'] == 'service test'
 
 
+def test_should_be_able_to_get_service_by_organisation_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/organisation/1234/services')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['services']) == 1
+    assert data['services'][0]['id'] == 1234
+    assert data['services'][0]['name'] == 'service test'
+
+
+def test_should_return_empty_list_if_no_services_for_organisation(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/organisation/12345/services')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['services']) == 0
+
+
+def test_should_be_a_404_of_non_int_org_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/organisation/not-valid/services')
+    data = json.loads(response.get_data())
+    assert response.status_code == 404
+
+
+def test_should_be_able_to_get_multiple_services_by_organisation_id(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().post(
+        '/service',
+        data=json.dumps(
+            {
+                'service': {
+                    'organisationId': 1234,
+                    'name': 'my service'
+                }
+            }
+        ),
+        content_type='application/json')
+    assert response.status_code == 201
+    response = notify_api.test_client().get('/organisation/1234/services')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['services']) == 2
+    assert data['services'][0]['name'] == 'my service'
+    assert data['services'][1]['name'] == 'service test'
+
+
 def test_should_be_a_404_if_service_does_not_exist(notify_api):
     response = notify_api.test_client().get('/service/12345')
     assert response.status_code == 404

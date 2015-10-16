@@ -57,6 +57,15 @@ def index():
             ),
             "method": "GET"
         },
+        "job.fetch_jobs_by_service": {
+            "url": url_for(
+                '.fetch_jobs_by_service',
+                service_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
         "job.create": {
             "url": url_for(
                 '.create_job',
@@ -74,6 +83,15 @@ def index():
             ),
             "method": "GET"
         },
+        "service.fetch_service_by_organisation": {
+            "url": url_for(
+                '.fetch_service_by_organisation',
+                organisation_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
         "service.create": {
             "url": url_for(
                 '.create_service',
@@ -85,6 +103,15 @@ def index():
         "notification.fetch": {
             "url": url_for(
                 '.fetch_notifications',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
+        "notification.fetch_notifications_by_job": {
+            "url": url_for(
+                '.fetch_notifications_by_job',
+                job_id="123",
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),

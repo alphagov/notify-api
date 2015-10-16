@@ -4,9 +4,10 @@ from flask import jsonify, abort
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
-from app.models import Service, Token
+from app.models import Service, Token, Organisation
 from app.main.validators import valid_service_submission
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import desc
 
 
 @main.route('/service/<int:service_id>', methods=['GET'])
@@ -15,6 +16,17 @@ def fetch_service(service_id):
 
     return jsonify(
         service=service.serialize()
+    )
+
+
+@main.route('/organisation/<int:organisation_id>/services', methods=['GET'])
+def fetch_service_by_organisation(organisation_id):
+    services = Service.query.join(Organisation).filter(
+        Organisation.id == organisation_id
+    ).order_by(desc(Service.created_at)).all()
+
+    return jsonify(
+        services=[service.serialize() for service in services]
     )
 
 

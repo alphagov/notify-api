@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 from app.main.views import get_json_from_request
 from app.models import Service, Job, Notification, Token
 from datetime import datetime
+from sqlalchemy import desc
 
 
 @main.route('/notifications', methods=['GET'])
@@ -17,6 +18,16 @@ def fetch_notifications():
 
     return jsonify(
         notifications=[notification.serialize() for notification in notifications],
+    )
+
+
+@main.route('/job/<int:job_id>/notifications', methods=['GET'])
+def fetch_notifications_by_job(job_id):
+    notifications = Notification.query.join(Job).filter(
+        Job.id == job_id
+    ).order_by(desc(Notification.created_at)).all()
+    return jsonify(
+        notifications=[notification.serialize() for notification in notifications]
     )
 
 
@@ -63,7 +74,6 @@ def create_sms_notification():
         job=job
     )
     try:
-        db.session.add(job)
         db.session.add(notification)
         db.session.commit()
         sms_wrapper.send(notification.to, notification.message, notification.id)

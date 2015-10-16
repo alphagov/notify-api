@@ -8,14 +8,13 @@ from flask.ext.script import Manager
 from alembic.command import upgrade
 from alembic.config import Config
 from sqlalchemy.schema import MetaData
-from app.models import Organisation, Service, Job, Token, User
+from app.models import Organisation, Service, Job, Token, User, Notification
 from config import configs
 from app.main.encryption import generate_password_hash
 
 
 @pytest.fixture(scope='session')
 def notify_api(request):
-    print("setting up notify-api")
     app = create_app('test')
     ctx = app.app_context()
     ctx.push()
@@ -56,6 +55,15 @@ def notify_db_session(request):
     token = Token(id=1234, token="1234")
     service = Service(id=1234, name="service test", created_at=datetime.utcnow(), token=token, organisation=org)
     job = Job(id=1234, name="job test", created_at=datetime.utcnow(), service=service)
+    notification = Notification(
+        id=1234,
+        to="phone-number",
+        message="this is a message",
+        job=job,
+        status="created",
+        method="sms",
+        created_at=datetime.utcnow()
+    )
 
     # Setup a dummy user for tests
     user = User(
@@ -73,6 +81,7 @@ def notify_db_session(request):
     db.session.add(token)
     db.session.add(org)
     db.session.add(service)
+    db.session.add(notification)
     db.session.add(job)
     db.session.add(user)
     db.session.commit()
