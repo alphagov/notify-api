@@ -8,8 +8,9 @@ class Notification(db.Model):
     __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
+
     job_id = db.Column(db.BigInteger, db.ForeignKey('jobs.id'), index=True, unique=False)
-    job = db.relationship('Job', backref=db.backref('notifications', lazy='joined'))
+    job = db.relationship('Job', backref=db.backref('notifications', lazy='dynamic'))
 
     to = db.Column(db.String(255), nullable=False)
     message = db.Column(db.String(255), nullable=False)
@@ -21,12 +22,12 @@ class Notification(db.Model):
     def serialize(self):
         serialized = {
             'id': self.id,
+            'to': self.to,
             'message': self.message,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'status': self.status,
             'method': self.method,
-            'jobId': self.job_id,
-            'job': self.job.serialize()
+            'jobId': self.job_id
         }
 
         return filter_null_value_fields(serialized)
@@ -72,7 +73,7 @@ class Service(db.Model):
             'id': self.id,
             'name': self.name,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
-            'organisation': self.organisation.serialize()
+            'organisationId': self.organisations_id
         }
 
         return filter_null_value_fields(serialized)
@@ -104,7 +105,7 @@ class User(db.Model):
             'updatedAt': self.updated_at.strftime(DATETIME_FORMAT),
             'passwordChangedAt': self.password_changed_at.strftime(DATETIME_FORMAT),
             'role': self.role,
-            'organisation': self.organisation.serialize(),
+            'organisationId': self.organisation_id,
             'failedLoginCount': self.failed_login_count
         }
 

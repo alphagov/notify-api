@@ -2,10 +2,11 @@ from flask import jsonify, abort
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
-from app.models import Job
+from app.models import Job, Service
 from app.main.validators import valid_job_submission
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import desc
 
 
 @main.route('/job/<int:job_id>', methods=['GET'])
@@ -14,6 +15,17 @@ def fetch_job(job_id):
 
     return jsonify(
         job=job.serialize()
+    )
+
+
+@main.route('/service/<int:service_id>/jobs', methods=['GET'])
+def fetch_jobs_by_service(service_id):
+    jobs = Job.query.join(Service).filter(
+        Service.id == service_id
+    ).order_by(desc(Job.created_at)).all()
+
+    return jsonify(
+        jobs=[job.serialize() for job in jobs]
     )
 
 

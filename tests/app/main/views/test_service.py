@@ -48,8 +48,8 @@ def test_should_be_able_to_get_multiple_services_by_organisation_id(notify_api, 
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert len(data['services']) == 2
-    assert data['services'][0]['id'] == 1234
-    assert data['services'][0]['name'] == 'service test'
+    assert data['services'][0]['name'] == 'my service'
+    assert data['services'][1]['name'] == 'service test'
 
 
 def test_should_be_a_404_if_service_does_not_exist(notify_api):

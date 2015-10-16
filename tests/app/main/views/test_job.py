@@ -9,6 +9,43 @@ def test_should_be_able_to_get_job_by_id(notify_api, notify_db, notify_db_sessio
     assert data['job']['name'] == 'job test'
 
 
+def test_should_be_able_to_get_job_by_service_id_id(notify_api, notify_db, notify_db_session, notify_config):
+    response = notify_api.test_client().get('/service/1234/jobs')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['jobs']) == 1
+    assert data['jobs'][0]['id'] == 1234
+    assert data['jobs'][0]['name'] == 'job test'
+
+
+def test_should_return_all_jobs_for_a_service(notify_api, notify_db, notify_db_session, notify_config):
+    create_response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps(
+            {
+                'job': {
+                    'serviceId': 1234,
+                    'name': 'my job'
+                }
+            }
+        ),
+        content_type='application/json')
+    assert create_response.status_code == 201
+    response = notify_api.test_client().get('/service/1234/jobs')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['jobs']) == 2
+    assert data['jobs'][0]['name'] == 'my job'
+    assert data['jobs'][1]['name'] == 'job test'
+
+
+def test_shgould_return_no_jobs_if_none_for_service(notify_api, notify_db, notify_db_session, notify_config):
+    response = notify_api.test_client().get('/service/12345/jobs')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['jobs']) == 0
+
+
 def test_should_be_a_404_if_job_does_not_exist(notify_api):
     response = notify_api.test_client().get('/job/12345')
     assert response.status_code == 404
