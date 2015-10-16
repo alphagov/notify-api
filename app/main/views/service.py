@@ -10,6 +10,17 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc
 
 
+@main.route('/service/<int:service_id>/token', methods=['GET'])
+def fetch_token_for_service(service_id):
+    token = Token.query.join(Service).filter(
+        Service.id == service_id
+    ).first_or_404()
+
+    return jsonify(
+        token=token.serialize()
+    )
+
+
 @main.route('/service/<int:service_id>', methods=['GET'])
 def fetch_service(service_id):
     service = Service.query.filter(Service.id == service_id).first_or_404()

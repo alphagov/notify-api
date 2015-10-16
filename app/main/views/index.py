@@ -83,6 +83,15 @@ def index():
             ),
             "method": "GET"
         },
+        "service.fetch_token_for_service": {
+            "url": url_for(
+                '.fetch_token_for_service',
+                service_id="123",
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "GET"
+        },
         "service.fetch_service_by_organisation": {
             "url": url_for(
                 '.fetch_service_by_organisation',
