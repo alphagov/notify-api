@@ -71,11 +71,14 @@ class Service(db.Model):
 
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
+    active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
+
     def serialize(self):
         serialized = {
             'id': self.id,
             'name': self.name,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
+            'active': self.active,
             'organisationId': self.organisations_id
         }
 
