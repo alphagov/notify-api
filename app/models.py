@@ -25,7 +25,9 @@ class Notification(db.Model):
             'id': self.id,
             'to': self.to,
             'message': self.message,
-            'createdAt': self.created_at.strftime(DATETIME_FORMAT),
+            'createdAt': none_or_formatted_date(self.created_at),
+            'sentAt': none_or_formatted_date(self.sent_at),
+            'deliveredAt': none_or_formatted_date(self.delivered_at),
             'status': self.status,
             'method': self.method,
             'jobId': self.job_id
@@ -147,3 +149,10 @@ def filter_null_value_fields(obj):
     return dict(
         filter(lambda x: x[1] is not None, obj.items())
     )
+
+
+def none_or_formatted_date(date):
+    if date:
+        return date.strftime(DATETIME_FORMAT)
+    else:
+        return None

@@ -8,6 +8,7 @@ from twilio import TwilioRestException
 
 
 def send_sms():
+    print("Processing SMS messages")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         notifications = Notification.query\
