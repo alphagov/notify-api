@@ -48,8 +48,12 @@ def notify_db(notify_api, request):
 
 @pytest.fixture(scope='function')
 def notify_db_session(request):
-    meta = MetaData(bind=db.engine, reflect=True)
+    def teardown():
+        for tbl in reversed(meta.sorted_tables):
+            db.engine.execute(tbl.delete())
 
+    meta = MetaData(bind=db.engine, reflect=True)
+    teardown()
     # Set up dummy org, with a service and a job
     org = Organisation(id=1234, name="org test")
     token = Token(id=1234, token="1234")
@@ -86,9 +90,6 @@ def notify_db_session(request):
     db.session.add(user)
     db.session.commit()
 
-    def teardown():
-        for tbl in reversed(meta.sorted_tables):
-            db.engine.execute(tbl.delete())
     request.addfinalizer(teardown)
 
 
