@@ -48,6 +48,7 @@ def notify_db(notify_api, request):
 
 @pytest.fixture(scope='function')
 def notify_db_session(request):
+
     meta = MetaData(bind=db.engine, reflect=True)
 
     # Set up dummy org, with a service and a job
@@ -89,6 +90,7 @@ def notify_db_session(request):
     def teardown():
         for tbl in reversed(meta.sorted_tables):
             db.engine.execute(tbl.delete())
+
     request.addfinalizer(teardown)
 
 

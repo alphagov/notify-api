@@ -76,7 +76,6 @@ def create_sms_notification():
     try:
         db.session.add(notification)
         db.session.commit()
-        sms_wrapper.send(notification.to, notification.message, notification.id)
     except IntegrityError:
         db.session.rollback()
         abort(400, "Failed to create notification: DB error")

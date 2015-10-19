@@ -15,6 +15,7 @@ class Notification(db.Model):
     to = db.Column(db.String(255), nullable=False)
     message = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    sent_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     delivered_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     status = db.Column(db.String(255), nullable=False)
     method = db.Column(db.String(255), nullable=False)
