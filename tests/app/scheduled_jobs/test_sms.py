@@ -46,18 +46,6 @@ def test_should_send_sms_notification(notify_api, notify_db, notify_db_session, 
     sms_wrapper.send.assert_called_once_with('phone-number', 'this is a message', 1234)
 
 
-def test_should_put_notification_into_error_if_failed(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send', side_effect=TwilioRestException(503, "uri", "Failed"))
-    send_sms()
-
-    read_notification = Notification.query.get(1234)
-    assert read_notification.status == 'error'
-    assert read_notification.sent_at is None
-
-    # sms calls made correctly
-    sms_wrapper.send.assert_called_once_with('phone-number', 'this is a message', 1234)
-
-
 def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_db_session, notify_config, mocker):
     mocker.patch('app.sms_wrapper.send')
     sent_at = datetime.utcnow()
@@ -85,6 +73,17 @@ def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_
     read_notification_2 = Notification.query.get(1234)
     assert read_notification_2.status == 'sent'
     assert read_notification_2.sent_at >= read_notification_2.created_at
+
+    # sms calls made correctly
+    sms_wrapper.send.assert_called_once_with('phone-number', 'this is a message', 1234)
+
+
+def test_should_put_notification_into_error_if_failed(notify_api, notify_db, notify_db_session, notify_config, mocker):
+    mocker.patch('app.sms_wrapper.send', side_effect=TwilioRestException(503, "uri", "Failed"))
+    send_sms()
+    read_notification = Notification.query.get(1234)
+    assert read_notification.status == 'error'
+    assert read_notification.sent_at is None
 
     # sms calls made correctly
     sms_wrapper.send.assert_called_once_with('phone-number', 'this is a message', 1234)
