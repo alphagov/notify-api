@@ -165,7 +165,32 @@ def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify
     assert data['notification']['message'] == "hello world"
     assert data['notification']['method'] == "sms"
     assert data['notification']['status'] == "created"
+    assert data['notification']['jobId']
     sms_wrapper.send.assert_called_once_with("+441234512345", "hello world", 1)
+
+
+def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify_db_session, notify_config, mocker):
+    mocker.patch('app.sms_wrapper.send')
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    assert response.status_code == 201
+
+    job_response = notify_api.test_client().get('/job/{}'.format(data['notification']['jobId']))
+    job_data = json.loads(job_response.get_data())
+    assert 'job' in job_data
+    assert job_data['job']['serviceId'] == 1234
 
 
 def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_session, notify_config, mocker):
@@ -188,6 +213,31 @@ def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_se
     assert response.status_code == 201
     assert 'notification' in data
     assert data['notification']['jobId'] == 1234
+
+
+def test_should_have_correct_service_id_on_existing_job(notify_api, notify_db, notify_db_session, notify_config, mocker):
+    mocker.patch('app.sms_wrapper.send')
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world",
+                "jobId": 1234
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    assert response.status_code == 201
+
+    job_response = notify_api.test_client().get('/job/{}'.format(data['notification']['jobId']))
+    job_data = json.loads(job_response.get_data())
+    assert 'job' in job_data
+    assert job_data['job']['serviceId'] == 1234
 
 
 def test_should_create_job_if_no_job_id_supplied(notify_api, notify_db, notify_db_session, notify_config, mocker):
