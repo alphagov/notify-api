@@ -215,7 +215,8 @@ def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_se
     assert data['notification']['jobId'] == 1234
 
 
-def test_should_have_correct_service_id_on_existing_job(notify_api, notify_db, notify_db_session, notify_config, mocker):
+def test_should_have_correct_service_id_on_existing_job(
+        notify_api, notify_db, notify_db_session, notify_config, mocker):
     mocker.patch('app.sms_wrapper.send')
     response = notify_api.test_client().post(
         '/sms/notification',
