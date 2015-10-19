@@ -19,6 +19,7 @@ class Notification(db.Model):
     delivered_at = db.Column(db.DateTime, index=False, unique=False, nullable=True)
     status = db.Column(db.String(255), nullable=False)
     method = db.Column(db.String(255), nullable=False)
+    sender_id = db.Column(db.String(255), index=True, nullable=True)
 
     def serialize(self):
         serialized = {
