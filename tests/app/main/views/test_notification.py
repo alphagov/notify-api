@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import json
 from app.models import Job, Service
-from app import db, sms_wrapper
+from app import db
 
 
 def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_config):
@@ -144,8 +144,7 @@ def test_should_reject_notification_if_job_id_not_on_service(notify_api, notify_
     assert data['error'] == 'Invalid job id for these credentials'
 
 
-def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
@@ -166,11 +165,9 @@ def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify
     assert data['notification']['method'] == "sms"
     assert data['notification']['status'] == "created"
     assert data['notification']['jobId']
-    sms_wrapper.send.assert_called_once_with("+441234512345", "hello world", 1)
 
 
-def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
@@ -193,8 +190,7 @@ def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify
     assert job_data['job']['serviceId'] == 1234
 
 
-def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
@@ -215,9 +211,7 @@ def test_should_use_existing_job_if_supplied(notify_api, notify_db, notify_db_se
     assert data['notification']['jobId'] == 1234
 
 
-def test_should_have_correct_service_id_on_existing_job(
-        notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_have_correct_service_id_on_existing_job(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
@@ -241,8 +235,7 @@ def test_should_have_correct_service_id_on_existing_job(
     assert job_data['job']['serviceId'] == 1234
 
 
-def test_should_create_job_if_no_job_id_supplied(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_create_job_if_no_job_id_supplied(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
@@ -280,8 +273,7 @@ def test_should_fetch_notification_by_job_id(notify_api, notify_db, notify_db_se
     assert data['notifications'][0]['message'] == 'this is a message'
 
 
-def test_should_fetch_all_notifications_by_job_id(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send')
+def test_should_fetch_all_notifications_by_job_id(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         headers={
