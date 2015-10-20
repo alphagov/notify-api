@@ -88,6 +88,7 @@ def notify_db_session(request):
     db.session.commit()
 
     def teardown():
+        db.session.remove()
         for tbl in reversed(meta.sorted_tables):
             db.engine.execute(tbl.delete())
 
