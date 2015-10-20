@@ -73,6 +73,8 @@ class Service(db.Model):
 
     active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
 
+    limit = db.Column(db.BigInteger, index=False, unique=False)
+
     def serialize(self):
         serialized = {
             'id': self.id,
