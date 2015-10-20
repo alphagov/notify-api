@@ -96,6 +96,31 @@ def test_should_reject_notification_if_no_token(notify_api, notify_db, notify_db
     assert data['error'] == 'No credentials supplied'
 
 
+def test_should_reject_notification_if_service_is_inactive(notify_api, notify_db, notify_db_session, notify_config):
+    service = Service.query.get(1234)
+    service.active = False
+    db.session.add(service)
+    db.session.commit()
+
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "Some message"
+            }
+        }),
+        content_type='application/json'
+    )
+
+    data = json.loads(response.get_data())
+    assert response.status_code == 400
+    assert data['error'] == 'Service is inactive'
+
+
 def test_should_reject_notification_if_invalid_job_id(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
@@ -118,7 +143,14 @@ def test_should_reject_notification_if_invalid_job_id(notify_api, notify_db, not
 
 
 def test_should_reject_notification_if_job_id_not_on_service(notify_api, notify_db, notify_db_session, notify_config):
-    service = Service(id=1000, name="unrelated service", created_at=datetime.now(), organisations_id=1234)
+    service = Service(
+        id=1000,
+        name="unrelated service",
+        created_at=datetime.now(),
+        organisations_id=1234,
+        active=True,
+        limit=100
+    )
     job = Job(id=1000, name="job test", created_at=datetime.now())
     job.service = service
     db.session.add(service)

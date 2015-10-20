@@ -56,6 +56,9 @@ def create_sms_notification():
     if not service:
         return jsonify(error="No service associated with these credentials"), 400
 
+    if not service.active:
+        return jsonify(error="Service is inactive"), 400
+
     if "jobId" in notification_request:
         job = Job.query.filter(Job.id == notification_request["jobId"]).first()
         if not job:
