@@ -39,10 +39,10 @@ def fetch_sms_status():
             .order_by(asc(Notification.sent_at)).all()
         for notification in notifications:
             try:
-                response = sms_wrapper.status(notification.sender_id)
-                if response.status:
-                    notification.status = response.status
-                    if response.status == 'delivered':
+                response_status = sms_wrapper.status(notification.sender_id)
+                if response_status:
+                    notification.status = response_status
+                    if response_status == 'delivered':
                         notification.delivered_at = datetime.utcnow()
                     db.session.add(notification)
                     db.session.commit()

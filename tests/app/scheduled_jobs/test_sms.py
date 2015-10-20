@@ -103,7 +103,7 @@ def test_should_put_notification_into_error_if_failed(notify_api, notify_db, not
 
 
 def test_should_set_status_for_all_send_notifications(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.status', return_value=TwilioResponse(status="delivered"))
+    mocker.patch('app.sms_wrapper.status', return_value="delivered")
 
     sent_at = datetime.utcnow()
     create_notification = Notification(
@@ -133,7 +133,7 @@ def test_should_set_status_for_all_send_notifications(notify_api, notify_db, not
 
 
 def test_should_set_status_for_send_notifications(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.status', return_value=TwilioResponse(status="delivered"))
+    mocker.patch('app.sms_wrapper.status', return_value="delivered")
     notification = Notification.query.get(1234)
     notification.status = 'sent'
     notification.sender_id = '1234'
@@ -148,7 +148,7 @@ def test_should_set_status_for_send_notifications(notify_api, notify_db, notify_
 
 
 def test_should_not_set_delivered_at_if_not_delivered(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.status', return_value=TwilioResponse(status="failed"))
+    mocker.patch('app.sms_wrapper.status', return_value="failed")
     notification = Notification.query.get(1234)
     notification.status = 'sent'
     notification.sender_id = '1234'
