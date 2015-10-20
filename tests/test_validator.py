@@ -162,6 +162,7 @@ def service_test_cases():
         (
             {
                 "organisationId": 1234,
+                "userId": 1234,
                 "name": "This is a valid message"
             },
             (True, [])
@@ -169,6 +170,7 @@ def service_test_cases():
         (
             {
                 "organisationId": "not-valid",
+                "userId": 1234,
                 "name": "This is a valid message"
             },
             (False, [
@@ -181,6 +183,20 @@ def service_test_cases():
         (
             {
                 "organisationId": 1234,
+                "userId": "not-valid",
+                "name": "This is a valid message"
+            },
+            (False, [
+                {
+                    'key': 'userId',
+                    'message': "'not-valid' is not of type 'integer'"
+                }
+            ])
+        ),
+        (
+            {
+                "organisationId": 1234,
+                "userId": 1234,
                 "name": "a" * 161  # too long
             },
             (False, [{'key': 'name',
@@ -189,6 +205,7 @@ def service_test_cases():
         (
             {
                 "organisationId": 1234,
+                "userId": 1234,
                 "name": "a"
             },
             (False, [{'key': 'name',
@@ -197,14 +214,23 @@ def service_test_cases():
         (
             {
                 "organisationId": 1234,
+                "userId": 1234
             },
             (False, [{'required': ["'name' is a required property"]}])
         ),
         (
             {
-                "name": "This is a valid message"
+                "name": "This is a valid message",
+                "userId": 1234
             },
             (False, [{'required': ["'organisationId' is a required property"]}])
+        ),
+        (
+            {
+                "name": "This is a valid message",
+                "organisationId": 1234
+            },
+            (False, [{'required': ["'userId' is a required property"]}])
         ),
     ]
     yield cases

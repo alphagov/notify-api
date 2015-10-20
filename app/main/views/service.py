@@ -4,36 +4,28 @@ from flask import jsonify, abort, current_app
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
-from app.models import Service, Token, Organisation
+from app.models import Service, Token, Organisation, User
 from app.main.validators import valid_service_submission
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc
 
 
-@main.route('/service/<int:service_id>/token', methods=['GET'])
-def fetch_token_for_service(service_id):
-    token = Token.query.join(Service).filter(
-        Service.id == service_id
+@main.route('/user/<int:user_id>/service/<int:service_id>', methods=['GET'])
+def fetch_service_by_user_id_and_service_id(user_id, service_id):
+    service = Service.query.filter(
+        Service.id == service_id,
+        Service.users.any(id=user_id)
     ).first_or_404()
-
-    return jsonify(
-        token=token.serialize()
-    )
-
-
-@main.route('/service/<int:service_id>', methods=['GET'])
-def fetch_service(service_id):
-    service = Service.query.filter(Service.id == service_id).first_or_404()
 
     return jsonify(
         service=service.serialize()
     )
 
 
-@main.route('/organisation/<int:organisation_id>/services', methods=['GET'])
-def fetch_service_by_organisation(organisation_id):
-    services = Service.query.join(Organisation).filter(
-        Organisation.id == organisation_id
+@main.route('/user/<int:user_id>/services', methods=['GET'])
+def fetch_services_by_user(user_id):
+    services = Service.query.filter(
+        Service.users.any(id=user_id)
     ).order_by(desc(Service.created_at)).all()
 
     return jsonify(
@@ -52,6 +44,13 @@ def create_service():
             error_details=validation_errors
         ), 400
 
+    user = User.query.get(service_from_request['userId'])
+
+    if not user:
+        return jsonify(
+            error="failed to create service - invalid user"
+        ), 400
+
     try:
         token = Token(token=uuid4())
         db.session.add(token)
@@ -65,11 +64,13 @@ def create_service():
             active=True,
             limit=current_app.config['MAX_SERVICE_LIMIT']
         )
+        service.users.append(user)
         db.session.add(service)
         db.session.commit()
         return jsonify(
             service=service.serialize()
         ), 201
     except IntegrityError as e:
+        print(e.orig)
         db.session.rollback()
         abort(400, "failed to create service")
