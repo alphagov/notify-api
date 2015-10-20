@@ -92,7 +92,8 @@ class Service(db.Model):
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
             'limit': self.limit,
-            'organisationId': self.organisations_id
+            'organisationId': self.organisations_id,
+            'token': self.token.serialize()
         }
 
         return filter_null_value_fields(serialized)

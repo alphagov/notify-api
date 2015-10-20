@@ -1,4 +1,5 @@
 from flask import json
+from . import uuid_regex
 
 
 def test_should_be_able_to_get_service_by_id_and_user_id(notify_api, notify_db, notify_db_session):
@@ -7,6 +8,7 @@ def test_should_be_able_to_get_service_by_id_and_user_id(notify_api, notify_db, 
     assert response.status_code == 200
     assert data['service']['id'] == 1234
     assert data['service']['name'] == 'service test'
+    assert data['service']['token']['token'] == '1234'
 
 
 def test_should_be_able_to_get_all_services_for_a_user(notify_api, notify_db, notify_db_session):
@@ -49,6 +51,7 @@ def test_should_be_able_to_create_a_service(notify_api, notify_db, notify_db_ses
     assert data['service']['name'] == 'my service'
     assert data['service']['active']
     assert data['service']['limit'] == 100
+    assert uuid_regex.match(data['service']['token']['token'])
 
 
 def test_should_reject_a_service_with_invalid_organisation(notify_api, notify_db, notify_db_session):
