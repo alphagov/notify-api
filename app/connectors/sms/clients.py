@@ -33,12 +33,21 @@ class TwilioClient(SmsClient):
         return twilio_account_sid, twilio_auth_token, twilio_number
 
     def send(self, to, message, message_id):
-        self.client.messages.create(
+        response = self.client.messages.create(
             body=message,
             to=to,
             from_=self.twilio_number
         )
         self.log(message_id)
+        return response
+
+    def status(self, message_id):
+        response = self.client.messages.get(message_id)
+        if response.status in ('delivered', 'undelivered', 'failed'):
+            return response.status
+        else:
+            print("Message {} status {}".format(message_id, response.status))
+            return None
 
     def log(self, message_id):
         print("Twilio has sent {}".format(message_id))

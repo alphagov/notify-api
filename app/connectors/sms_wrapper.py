@@ -14,4 +14,7 @@ class SmsWrapper:
         self.__clients__.append(TwilioClient(app))
 
     def send(self, to, message, message_id):
-        self.__clients__[0].send(to, message, message_id)
+        return self.__clients__[0].send(to, message, message_id)
+
+    def status(self, message_id):
+        return self.__clients__[0].status(message_id)
