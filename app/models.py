@@ -74,7 +74,7 @@ class Service(db.Model):
 
     active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
 
-    limit = db.Column(db.BigInteger, index=False, unique=False)
+    limit = db.Column(db.BigInteger, index=False, unique=False, nullable=False)
 
     def serialize(self):
         serialized = {
@@ -82,6 +82,7 @@ class Service(db.Model):
             'name': self.name,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
+            'limit': self.limit,
             'organisationId': self.organisations_id
         }
 

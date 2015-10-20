@@ -11,7 +11,6 @@ def test_should_be_able_to_get_token_by_service_by_id(notify_api, notify_db, not
 
 def test_should_return_404_if_no_token_by_service_by_id(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/service/12345/token')
-    data = json.loads(response.get_data())
     assert response.status_code == 404
 
 
@@ -41,7 +40,6 @@ def test_should_return_empty_list_if_no_services_for_organisation(notify_api, no
 
 def test_should_be_a_404_of_non_int_org_id(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/organisation/not-valid/services')
-    data = json.loads(response.get_data())
     assert response.status_code == 404
 
 
@@ -91,7 +89,8 @@ def test_should_be_able_to_create_a_service(notify_api, notify_db_session):
     data = json.loads(response.get_data())
     assert response.status_code == 201
     assert 'service' in data
-    assert 'id' in data['service']
+    assert data['service']['active']
+    assert data['service']['limit'] == 100
 
 
 def test_should_reject_a_service_with_invalid_organisation(notify_api):

@@ -54,7 +54,15 @@ def notify_db_session(request):
     # Set up dummy org, with a service and a job
     org = Organisation(id=1234, name="org test")
     token = Token(id=1234, token="1234")
-    service = Service(id=1234, name="service test", created_at=datetime.utcnow(), token=token, organisation=org)
+    service = Service(
+        id=1234,
+        name="service test",
+        created_at=datetime.utcnow(),
+        token=token,
+        organisation=org,
+        active=True,
+        limit=100
+    )
     job = Job(id=1234, name="job test", created_at=datetime.utcnow(), service=service)
     notification = Notification(
         id=1234,

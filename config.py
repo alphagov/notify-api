@@ -15,6 +15,7 @@ class Config(object):
     TWILIO_NUMBER = '1234'
 
     MAX_FAILED_LOGIN_COUNT = 5
+    MAX_SERVICE_LIMIT = 100
 
 
 class Development(Config):

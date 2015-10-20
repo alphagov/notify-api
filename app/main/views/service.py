@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import uuid4
-from flask import jsonify, abort
+from flask import jsonify, abort, current_app
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
@@ -61,7 +61,9 @@ def create_service():
             name=service_from_request['name'],
             organisations_id=service_from_request['organisationId'],
             created_at=datetime.utcnow(),
-            token_id=token.id
+            token_id=token.id,
+            active=True,
+            limit=current_app.config['MAX_SERVICE_LIMIT']
         )
         db.session.add(service)
         db.session.commit()
