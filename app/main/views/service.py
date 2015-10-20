@@ -4,10 +4,21 @@ from flask import jsonify, abort, current_app
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
-from app.models import Service, Token, Organisation, User
+from app.models import Service, Token, User
 from app.main.validators import valid_service_submission
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
+
+
+@main.route('/service/<int:service_id>/users', methods=['GET'])
+def fetch_users_for_service(service_id):
+    users = User.query.filter(
+        Service.id == service_id
+    ).order_by(asc(User.created_at)).all()
+
+    return jsonify(
+        users=[user.serialize() for user in users]
+    )
 
 
 @main.route('/user/<int:user_id>/service/<int:service_id>', methods=['GET'])

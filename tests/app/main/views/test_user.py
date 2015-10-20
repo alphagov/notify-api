@@ -1,9 +1,50 @@
 from flask import json
+from app import db
+from app.models import User, Service
+from datetime import datetime
+
+
+def test_should_fetch_users_for_a_service(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().get('/service/1234/users')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert 'users' in data
+    assert len(data['users']) == 1
+    assert data['users'][0]['role'] == 'admin'
+    assert data['users'][0]['emailAddress'] == 'test-user@example.org'
+    assert not data['users'][0]['locked']
+    assert data['users'][0]['active']
+    assert data['users'][0]['failedLoginCount'] == 0
+
+
+def test_should_fetch_all_users_for_a_service(notify_api, notify_db, notify_db_session):
+    user = User(
+        email_address="test@test.com",
+        password="password",
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        failed_login_count=0,
+        role='admin',
+        organisation_id=1234
+    )
+    service = Service.query.get(1234)
+    service.users.append(user)
+    db.session.add(service)
+    db.session.commit()
+
+    response = notify_api.test_client().get('/service/1234/users')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert 'users' in data
+    assert len(data['users']) == 2
+    assert data['users'][0]['emailAddress'] == 'test-user@example.org'
+    assert data['users'][1]['emailAddress'] == 'test@test.com'
 
 
 def test_should_by_404_for_non_numeric_user_id(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/users/invalid')
-    data = json.loads(response.get_data())
     assert response.status_code == 404
 
 
@@ -154,7 +195,7 @@ def test_should_reset_failed_login_count_on_success(notify_api, notify_db, notif
     assert data['users']['failedLoginCount'] == 0
 
 
-def test_shouyld_prevent_login_when_too_many_failed_attempts(notify_api, notify_db, notify_db_session):
+def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_db, notify_db_session):
     for i in range(0, notify_api.config['MAX_FAILED_LOGIN_COUNT'] + 1):
         response = notify_api.test_client().post(
             '/users/auth',
