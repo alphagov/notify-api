@@ -3,19 +3,15 @@ language: python
 python:
 - '3.4'
 addons:
-  postgresql: "9.3"
+  postgresql: '9.3'
 env:
-  - SQLALCHEMY_DATABASE_URI=postgresql://postgres:@localhost:5432/notify_test
+- SQLALCHEMY_DATABASE_URI=postgresql://postgres:@localhost:5432/notify_test
 install:
-  - pip install -r requirements_for_test.txt
+- pip install -r requirements_for_test.txt
 before_script:
-  - psql -c 'create database notify_test;' -U postgres
+- psql -c 'create database notify_test;' -U postgres
 script:
-  - ./scripts/run_tests.sh
-notifications:
-  email: false
-  slack:
-    secure: MFUBET2AoQhlbNaZvzthL8G3FaP/TXcevvjdE00s9vl2CFoxGN5s/D5lIuNJ7cbUEk0nvoYPNNN1XbdI7Y9GI/wsZLT7H/Ss1tilEtbhXurDM8knZxb5MMCmCjCVF4KvVSF2oosEEXdJoKYBEeJoRd6zPnnJT4ZuXVeuGZUY73hae0JloP/+ZFbb+OD5HozL0wPk3fDOhtD73GsDJxYMCUbadeaRr5l5k5y18BnELiFPeubZZc2z+TC8prFIMShOdJdUs+bpmsZc89J34BAkyDe7fEJ+oxU7sqpvTmea/pczDaWOxuwcqGdyC9mO8iV26x8LSyLum3nDJt9MDTipvcvpI8yBAopKw+JlBYS/54tZAmlRIUQkM6V4+1SDFqdt5EZyVdqgr7wokqCwMkC7pNFsdkAHzdrRcMwy8QbpVLhAPdWShoWYI4bG6ZMoZkLEzVUjeseTDcEDbH09HZP8+g1OWRqXNPfGHMhCT/Yb2xM6CgrsrVx7AAH1B33lHQYu5+vwMQpRw6/sgtnf/UBU4Y0BhpkjLVDQsf9BedcXm+iugmJz32mpTClbz1ze/PtU+2TuzI56zMD5EMyWTQ4cYZ1HNpnT8XXm3NumRU8WgfN1nxtu2ru203atFCEDWba2n5DXrrkNJlkpNxmIeYz37v/MoQvvuiedFitjBfKYMxU=
+- ./scripts/run_tests.sh
 deploy:
   provider: heroku
   api_key:
@@ -23,4 +19,8 @@ deploy:
   app:
     master: test-notify-api
   run:
-    - "python application.py db upgrade"
+  - python application.py db upgrade
+notifications:
+  slack:
+    rooms:
+      secure: MMDS75tBOitrK4FXShmUjRB687GtCnVKvq0640Q4pWXaqBVVojQ2p9GlYYpFHxTmG7DhvPBjlq6MaTH41mwJwjO3y7cH2iWL69KbFX2PvjOk+zwIzdzIi29uhs9aOhhILvomT0HY2PPjLnHkrcrBszYG7LYvac+eqnzAdOlzSAozazfAGI1IUF3UdcZX4awLgv027WnxC2CXm/ZY7l1xsLwxtACKIC0CS2fB0fgK7BJfFOKTjvj60gKx15ffR2gRVMNklYaW2VuaATT/VMeLJjYVoWeHkOIqW5yqKBelWQfWXIivmDfhL0zPk69sm51w3sQkzJxsr67rzjdpUx8WqFtin/CCIHwDJluOmIRD8rWZSgQf5LQUPy+gsUvSyoeebuh/hA7I8x7hYvmiptCVDi8mBjVFxfSSODQscJii61QDraOCrJYqWWabHPY4TeqHw7HqAgHBidHquowsZWuxyfhCMaRQLS72HTWKWNkK44+y8v1E+TomYmTvFg4ZSLFkievmhxsR5FUewbXjQ64zKw3oBT56H2queCLJ7MiLZNvza239T4/lqPIcF7YrOhrce3ozONviWtoYldq9NNPQSkObw0NdTi7PkY4xF2Nw6MaDWuIAhmkRIJNC3JdadkJ8ZdzztRdYhUjp/6L42oLaOcsJdE99URUhtj9GWaLGyK0=
