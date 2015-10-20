@@ -65,6 +65,7 @@ user_to_service = db.Table(
     db.Column('service_id', db.Integer, db.ForeignKey('services.id'))
 )
 
+
 class Service(db.Model):
     __tablename__ = 'services'
 
