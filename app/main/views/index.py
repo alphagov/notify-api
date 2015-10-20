@@ -74,28 +74,20 @@ def index():
             ),
             "method": "POST"
         },
-        "service.fetch": {
+        "service.fetch_service_by_user_id_and_service_id": {
             "url": url_for(
-                '.fetch_service',
+                '.fetch_service_by_user_id_and_service_id',
+                user_id="123",
                 service_id="123",
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
             "method": "GET"
         },
-        "service.fetch_token_for_service": {
+        "service.fetch_services_by_user": {
             "url": url_for(
-                '.fetch_token_for_service',
-                service_id="123",
-                _external=True,
-                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
-            ),
-            "method": "GET"
-        },
-        "service.fetch_service_by_organisation": {
-            "url": url_for(
-                '.fetch_service_by_organisation',
-                organisation_id="123",
+                '.fetch_services_by_user',
+                user_id="123",
                 _external=True,
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),

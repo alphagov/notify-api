@@ -11,10 +11,14 @@
     },
     "organisationId": {
       "type": "integer"
+    },
+    "userId": {
+      "type": "integer"
     }
   },
   "required": [
     "name",
-    "organisationId"
+    "organisationId",
+    "userId"
   ]
 }

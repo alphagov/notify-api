@@ -84,8 +84,10 @@ def notify_db_session(request):
         updated_at=datetime.utcnow(),
         password_changed_at=datetime.utcnow(),
         role='admin',
-        organisation=org
+        organisation=org,
     )
+
+    service.users.append(user)
 
     db.session.add(token)
     db.session.add(org)

@@ -58,6 +58,14 @@ class Job(db.Model):
         return filter_null_value_fields(serialized)
 
 
+user_to_service = db.Table(
+    'user_to_service',
+    db.Model.metadata,
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('service_id', db.Integer, db.ForeignKey('services.id'))
+)
+
+
 class Service(db.Model):
     __tablename__ = 'services'
 
@@ -76,6 +84,8 @@ class Service(db.Model):
 
     limit = db.Column(db.BigInteger, index=False, unique=False, nullable=False)
 
+    users = db.relationship('User', secondary=user_to_service, backref='services')
+
     def serialize(self):
         serialized = {
             'id': self.id,
@@ -83,7 +93,8 @@ class Service(db.Model):
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
             'limit': self.limit,
-            'organisationId': self.organisations_id
+            'organisationId': self.organisations_id,
+            'token': self.token.serialize()
         }
 
         return filter_null_value_fields(serialized)
