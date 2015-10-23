@@ -9,16 +9,12 @@
       "maxLength": 160,
       "minLength": 5
     },
-    "organisationId": {
-      "type": "integer"
-    },
     "userId": {
       "type": "integer"
     }
   },
   "required": [
     "name",
-    "organisationId",
     "userId"
   ]
 }

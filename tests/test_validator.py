@@ -161,7 +161,6 @@ def service_test_cases():
     cases = [
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "This is a valid message"
             },
@@ -169,20 +168,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": "not-valid",
-                "userId": 1234,
-                "name": "This is a valid message"
-            },
-            (False, [
-                {
-                    'key': 'organisationId',
-                    'message': "'not-valid' is not of type 'integer'"
-                }
-            ])
-        ),
-        (
-            {
-                "organisationId": 1234,
                 "userId": "not-valid",
                 "name": "This is a valid message"
             },
@@ -195,7 +180,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "a" * 161  # too long
             },
@@ -204,7 +188,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "a"
             },
@@ -213,17 +196,9 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234
             },
             (False, [{'required': ["'name' is a required property"]}])
-        ),
-        (
-            {
-                "name": "This is a valid message",
-                "userId": 1234
-            },
-            (False, [{'required': ["'organisationId' is a required property"]}])
         ),
         (
             {

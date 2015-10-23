@@ -69,7 +69,7 @@ def create_user():
         db.session.add(user)
         db.session.commit()
         return jsonify(
-            service=user.serialize()
+            user=user.serialize()
         ), 201
     except IntegrityError as e:
         print(e.orig)

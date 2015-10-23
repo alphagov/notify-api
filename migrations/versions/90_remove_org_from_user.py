@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 13bd0a689f4_
+Revision ID: 90_remove_org_from_user
 Revises: 80_add_mobile_to_user
 Create Date: 2015-10-23 15:25:31.559522
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '13bd0a689f4_'
+revision = '90_remove_org_from_user'
 down_revision = '80_add_mobile_to_user'
 
 from alembic import op

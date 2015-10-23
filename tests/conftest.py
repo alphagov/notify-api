@@ -59,7 +59,6 @@ def notify_db_session(request):
         name="service test",
         created_at=datetime.utcnow(),
         token=token,
-        organisation=org,
         active=True,
         limit=100
     )

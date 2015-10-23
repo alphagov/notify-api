@@ -75,9 +75,6 @@ class Service(db.Model):
     token_id = db.Column(db.BigInteger, db.ForeignKey('token.id'), index=True, unique=True)
     token = db.relationship('Token', backref=db.backref('services', lazy='dynamic'))
 
-    organisations_id = db.Column(db.Integer, db.ForeignKey('organisations.id'))
-    organisation = db.relationship('Organisation', backref=db.backref('services', lazy='dynamic'))
-
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
     active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
@@ -93,7 +90,6 @@ class Service(db.Model):
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
             'limit': self.limit,
-            'organisationId': self.organisations_id,
             'token': self.token.serialize()
         }
 
