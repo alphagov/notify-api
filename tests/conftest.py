@@ -78,13 +78,13 @@ def notify_db_session(request):
     user = User(
         id=1234,
         email_address="test-user@example.org",
+        mobile_number="+4412121221112",
         password=generate_password_hash('valid-password'),
         active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
         password_changed_at=datetime.utcnow(),
-        role='admin',
-        organisation=org,
+        role='admin'
     )
 
     service.users.append(user)

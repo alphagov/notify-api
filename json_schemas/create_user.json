@@ -6,7 +6,7 @@
   "properties": {
     "emailAddress": {
       "type": "string",
-      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]+)+$"
+      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]*)*.gov.uk"
     },
     "mobileNumber": {
       "type": "string",

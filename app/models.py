@@ -114,8 +114,6 @@ class User(db.Model):
     logged_in_at = db.Column(db.DateTime, nullable=True)
     failed_login_count = db.Column(db.Integer, nullable=False, default=0)
     role = db.Column(db.String, index=False, unique=False, nullable=False)
-    organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
-    organisation = db.relationship('Organisation', backref=db.backref('users', lazy='dynamic'))
 
     def serialize(self):
         serialized = {
@@ -127,7 +125,6 @@ class User(db.Model):
             'updatedAt': self.updated_at.strftime(DATETIME_FORMAT),
             'passwordChangedAt': self.password_changed_at.strftime(DATETIME_FORMAT),
             'role': self.role,
-            'organisationId': self.organisation_id,
             'failedLoginCount': self.failed_login_count
         }
 

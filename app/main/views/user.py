@@ -2,10 +2,11 @@ from datetime import datetime
 from flask import jsonify, abort, request, current_app
 from .. import main
 from app import db
-from app.main import encryption
-from app.main.validators import valid_user_authentication_submission
+from app.main.encryption import hashpw, checkpw
+from app.main.validators import valid_user_authentication_submission, valid_create_user_submission
 from app.main.views import get_json_from_request
 from app.models import User
+from sqlalchemy.exc import IntegrityError
 
 
 @main.route('/users/<int:user_id>', methods=['GET'])
@@ -38,6 +39,42 @@ def fetch_user_by_email():
         ), 200
     else:
         abort(400, "No email address provided")
+
+
+@main.route('/users', methods=['POST'])
+def create_user():
+    user_creation_request = get_json_from_request('user')
+    print(user_creation_request)
+    validation_result, validation_errors = valid_create_user_submission(user_creation_request)
+    if not validation_result:
+        return jsonify(
+            error="Invalid JSON",
+            error_details=validation_errors
+        ), 400
+
+    user = User(
+        email_address=user_creation_request['emailAddress'],
+        mobile_number=user_creation_request['mobileNumber'],
+        password=hashpw(user_creation_request['emailAddress']),
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        logged_in_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        failed_login_count=0,
+        role='admin'
+    )
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(
+            service=user.serialize()
+        ), 201
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to create user")
 
 
 @main.route('/users/auth', methods=['POST'])
@@ -73,7 +110,7 @@ def auth_user():
 
 
 def valid_user_auth(password_from_request, user):
-    password_is_valid = encryption.checkpw(password_from_request, user.password)
+    password_is_valid = checkpw(password_from_request, user.password)
     too_many_failed_logins = user.failed_login_count > current_app.config['MAX_FAILED_LOGIN_COUNT']
 
     if password_is_valid and user.active and not too_many_failed_logins:

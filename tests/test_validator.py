@@ -284,13 +284,12 @@ def test_should_validate_user_authentication(user_authentication_test_cases):
         assert valid_user_authentication_submission(case) == result
 
 
-
 @pytest.yield_fixture
 def user_creation_test_cases():
     cases = [
         (
             {
-                "emailAddress": "valid@email.com",
+                "emailAddress": "valid@email.gov.uk",
                 "mobileNumber": "+447827992607",
                 "password": "valid-password"
             },
@@ -298,27 +297,40 @@ def user_creation_test_cases():
         ),
         (
             {
-                "emailAddress": "@email.com",
+                "emailAddress": "@email.gov.uk",
                 "mobileNumber": "+441234112112",
                 "password": "valid-password"
             },
             (False, [
                 {
                     'key': 'emailAddress',
-                    'message': "'@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]+)+$'"
+                    'message': "'@email.gov.uk' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
+                }
+            ])
+        ),
+         (
+            {
+                "emailAddress": "test@email.com",
+                "mobileNumber": "+441234112112",
+                "password": "valid-password"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'test@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
                 }
             ])
         ),
         (
             {
-                "emailAddress": "valid@email.com",
+                "emailAddress": "valid@email.gov.uk",
                 "password": "valid-password"
             },
             (False, [{'required': ["'mobileNumber' is a required property"]}])
         ),
         (
             {
-                "emailAddress": "valid@email.com",
+                "emailAddress": "valid@email.gov.uk",
                 "mobileNumber": "invalid",
                 "password": "valid-password"
             },
@@ -331,7 +343,7 @@ def user_creation_test_cases():
         ),
         (
             {
-                "emailAddress": "valid@email.com",
+                "emailAddress": "valid@email.gov.uk",
                 "mobileNumber": "+441234112112"
             },
             (False, [{'required': ["'password' is a required property"]}])
