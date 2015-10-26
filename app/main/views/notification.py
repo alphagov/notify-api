@@ -4,7 +4,7 @@ from .. import main, get_token_from_headers
 from ... import db, sms_wrapper
 from sqlalchemy.exc import IntegrityError, DataError
 from app.main.views import get_json_from_request
-from app.models import Service, Job, Notification, Token
+from app.models import Service, Job, Notification, Token, Usage
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -72,6 +72,19 @@ def create_sms_notification():
         if not notification_request['to'] in [user.mobile_number for user in service.users]:
             abort(400, "Restricted service: cannot send notification to this number")
 
+    usage = Usage.query.filter(Usage.day == datetime.utcnow().date()).first()
+    if usage:
+        usage.count += 1
+    else:
+        usage = Usage(
+            day=datetime.utcnow().date(),
+            count=1,
+            service_id=service.id
+        )
+
+    if usage.count > service.limit:
+        abort(429, "Exceeded sending limits for today")
+
     notification = Notification(
         to=notification_request['to'],
         message=notification_request['message'],
@@ -81,6 +94,7 @@ def create_sms_notification():
         job=job
     )
     try:
+        db.session.add(usage)
         db.session.add(notification)
         db.session.commit()
     except IntegrityError:

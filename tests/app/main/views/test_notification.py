@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import json
-from app.models import Job, Service, Token, User
+from app.models import Job, Service, Token, User, Usage
 from app import db
 
 
@@ -197,6 +197,111 @@ def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify
     assert data['notification']['method'] == "sms"
     assert data['notification']['status'] == "created"
     assert data['notification']['jobId']
+
+
+def test_records_new_usage(notify_api, notify_db, notify_db_session, notify_config):
+    current_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(current_usage) == 0
+
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    assert response.status_code == 201
+    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(new_usage) == 1
+    assert new_usage[0].count == 1
+
+
+def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_session, notify_config):
+    current_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(current_usage) == 0
+
+    notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(new_usage) == 1
+    assert new_usage[0].count == 1
+
+    notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+
+    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(new_usage) == 1
+    assert new_usage[0].count == 2
+
+
+def test_should_reject_notification_if_over_limit(notify_api, notify_db, notify_db_session, notify_config):
+    service = Service.query.filter(Service.id == 1234).first()
+    service.limit = 1
+    db.session.add(service)
+    db.session.commit()
+
+    response_1 = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    assert response_1.status_code == 201
+    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
+    assert len(new_usage) == 1
+    assert new_usage[0].count == 1
+
+    response_2 = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    assert response_2.status_code == 429
+    data = json.loads(response_2.get_data())
+    assert data['error'] == 'Exceeded sending limits for today'
 
 
 def test_should_permit_allowed_numbers_on_restricted_service(notify_api, notify_db, notify_db_session, notify_config):

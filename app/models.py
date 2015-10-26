@@ -83,9 +83,7 @@ class Service(db.Model):
 
     users = db.relationship('User', secondary=user_to_service, backref='services')
 
-    service = db.relationship('Service', backref=db.backref('jobs', lazy='dynamic'))
-
-    usage = db.relationship('Usage', backref=db.backref('usage', lazy='dynamic'))
+    usage = db.relationship('Usage', backref=db.backref('usage'))
 
     restricted = db.Column(db.Boolean, index=False, unique=False, nullable=False)
 
