@@ -102,7 +102,7 @@ def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
         data=json.dumps(
             {
                 'userAuthentication': {
-                    'emailAddress': 'test-user@example.org',
+                    'emailAddress': 'TEST-user@example.org',
                     'password': 'valid-password'
                 }
             }
@@ -231,7 +231,7 @@ def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session
         data=json.dumps(
             {
                 'user': {
-                    'emailAddress': 'test-user@example.gov.uk',
+                    'emailAddress': 'TEST-user@example.gov.uk',
                     'mobileNumber': '+449999999999',
                     'password': 'validpassword'
                 }

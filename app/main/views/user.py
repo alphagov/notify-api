@@ -52,9 +52,9 @@ def create_user():
         ), 400
 
     user = User(
-        email_address=user_creation_request['emailAddress'],
+        email_address=user_creation_request['emailAddress'].lower(),
         mobile_number=user_creation_request['mobileNumber'],
-        password=hashpw(user_creation_request['emailAddress']),
+        password=hashpw(user_creation_request['password']),
         active=False,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
