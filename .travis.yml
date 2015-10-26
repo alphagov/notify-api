@@ -19,7 +19,7 @@ deploy:
   app:
     master: test-notify-api
   run:
-  - python application.py db upgrade
+    - python application.py db upgrade
 notifications:
   slack:
     rooms:
