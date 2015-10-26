@@ -83,6 +83,8 @@ class Service(db.Model):
 
     users = db.relationship('User', secondary=user_to_service, backref='services')
 
+    usage = db.relationship('Usage', backref=db.backref('usage'))
+
     restricted = db.Column(db.Boolean, index=False, unique=False, nullable=False)
 
     def serialize(self):
@@ -97,6 +99,15 @@ class Service(db.Model):
         }
 
         return filter_null_value_fields(serialized)
+
+
+class Usage(db.Model):
+    __tablename__ = 'usage'
+
+    id = db.Column(db.Integer, primary_key=True)
+    day = db.Column(db.Date, index=False, unique=False, nullable=False)
+    count = db.Column(db.BigInteger, index=False, unique=False, nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
 
 
 class User(db.Model):

@@ -26,6 +26,11 @@ def page_not_found(e):
     return jsonify(error=e.description or "Not found"), 404
 
 
+@main.app_errorhandler(429)
+def limit_exceeded(e):
+    return jsonify(error=str(e.description)), 429
+
+
 @main.app_errorhandler(500)
 def internal_server_error(e):
     # TODO: log the error
