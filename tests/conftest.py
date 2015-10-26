@@ -60,6 +60,7 @@ def notify_db_session(request):
         created_at=datetime.utcnow(),
         token=token,
         active=True,
+        restricted=False,
         limit=100
     )
     job = Job(id=1234, name="job test", created_at=datetime.utcnow(), service=service)
