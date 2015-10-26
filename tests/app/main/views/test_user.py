@@ -91,7 +91,6 @@ def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_
         ),
         content_type='application/json')
     data = json.loads(response.get_data())
-    print(data)
     assert response.status_code == 400
     assert 'error_details' in data
     assert {'required': ["'emailAddress' is a required property"]} in data['error_details']
@@ -110,7 +109,6 @@ def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
         ),
         content_type='application/json')
     data = json.loads(response.get_data())
-    print(data)
     assert response.status_code == 200
     assert 'users' in data
     assert data['users']['role'] == 'admin'
@@ -242,8 +240,10 @@ def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session
         content_type='application/json')
     assert response.status_code == 201
 
-    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.gov.uk')
+    data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
+    assert not data['users']['active']
 
 
 def test_should_reject_invalid_user_request(notify_api, notify_db, notify_db_session):

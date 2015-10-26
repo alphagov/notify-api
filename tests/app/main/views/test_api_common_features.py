@@ -30,6 +30,5 @@ def test_should_reject_if_invalid_json(post_endpoint_paths, notify_api, notify_c
             content_type='application/json'
         )
         data = json.loads(response.get_data())
-        print(path)
         assert response.status_code == 400
         assert data['error'] == "The browser (or proxy) sent a request that this server could not understand."

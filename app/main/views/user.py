@@ -44,7 +44,6 @@ def fetch_user_by_email():
 @main.route('/users', methods=['POST'])
 def create_user():
     user_creation_request = get_json_from_request('user')
-    print(user_creation_request)
     validation_result, validation_errors = valid_create_user_submission(user_creation_request)
     if not validation_result:
         return jsonify(
@@ -56,7 +55,7 @@ def create_user():
         email_address=user_creation_request['emailAddress'],
         mobile_number=user_creation_request['mobileNumber'],
         password=hashpw(user_creation_request['emailAddress']),
-        active=True,
+        active=False,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
         logged_in_at=datetime.utcnow(),
@@ -69,7 +68,7 @@ def create_user():
         db.session.add(user)
         db.session.commit()
         return jsonify(
-            user=user.serialize()
+            users=user.serialize()
         ), 201
     except IntegrityError as e:
         print(e.orig)
