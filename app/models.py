@@ -83,12 +83,15 @@ class Service(db.Model):
 
     users = db.relationship('User', secondary=user_to_service, backref='services')
 
+    restricted = db.Column(db.Boolean, index=False, unique=False, nullable=False)
+
     def serialize(self):
         serialized = {
             'id': self.id,
             'name': self.name,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
+            'restricted': self.restricted,
             'limit': self.limit,
             'token': self.token.serialize()
         }

@@ -60,6 +60,7 @@ def notify_db_session(request):
         created_at=datetime.utcnow(),
         token=token,
         active=True,
+        restricted=False,
         limit=100
     )
     job = Job(id=1234, name="job test", created_at=datetime.utcnow(), service=service)
@@ -77,7 +78,7 @@ def notify_db_session(request):
     user = User(
         id=1234,
         email_address="test-user@example.org",
-        mobile_number="+4412121221112",
+        mobile_number="+449999234234",
         password=generate_password_hash('valid-password'),
         active=True,
         created_at=datetime.utcnow(),

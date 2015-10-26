@@ -72,6 +72,7 @@ def create_service():
             created_at=datetime.utcnow(),
             token_id=token.id,
             active=True,
+            restricted=True,
             limit=current_app.config['MAX_SERVICE_LIMIT']
         )
         service.users.append(user)
