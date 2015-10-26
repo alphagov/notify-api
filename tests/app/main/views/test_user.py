@@ -20,14 +20,14 @@ def test_should_fetch_users_for_a_service(notify_api, notify_db, notify_db_sessi
 def test_should_fetch_all_users_for_a_service(notify_api, notify_db, notify_db_session):
     user = User(
         email_address="test@test.com",
+        mobile_number="+441234123412",
         password="password",
         active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow(),
         password_changed_at=datetime.utcnow(),
         failed_login_count=0,
-        role='admin',
-        organisation_id=1234
+        role='admin'
     )
     service = Service.query.get(1234)
     service.users.append(user)
@@ -53,7 +53,6 @@ def test_should_fetch_user_if_can_find_by_id(notify_api, notify_db, notify_db_se
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
-    assert data['users']['organisationId'] == 1234
     assert data['users']['role'] == 'admin'
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']
@@ -73,7 +72,6 @@ def test_should_fetch_user_if_can_find_by_email(notify_api, notify_db, notify_db
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
-    assert data['users']['organisationId'] == 1234
     assert data['users']['role'] == 'admin'
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']
@@ -93,7 +91,6 @@ def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_
         ),
         content_type='application/json')
     data = json.loads(response.get_data())
-    print(data)
     assert response.status_code == 400
     assert 'error_details' in data
     assert {'required': ["'emailAddress' is a required property"]} in data['error_details']
@@ -105,17 +102,15 @@ def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
         data=json.dumps(
             {
                 'userAuthentication': {
-                    'emailAddress': 'test-user@example.org',
+                    'emailAddress': 'TEST-user@example.org',
                     'password': 'valid-password'
                 }
             }
         ),
         content_type='application/json')
     data = json.loads(response.get_data())
-    print(data)
     assert response.status_code == 200
     assert 'users' in data
-    assert data['users']['organisationId'] == 1234
     assert data['users']['role'] == 'admin'
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']
@@ -228,3 +223,60 @@ def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_d
         ),
         content_type='application/json')
     assert response_2.status_code == 403
+
+
+def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().post(
+        '/users',
+        data=json.dumps(
+            {
+                'user': {
+                    'emailAddress': 'TEST-user@example.gov.uk',
+                    'mobileNumber': '+449999999999',
+                    'password': 'validpassword'
+                }
+            }
+        ),
+        content_type='application/json')
+    assert response.status_code == 201
+
+    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.gov.uk')
+    data = json.loads(fetch_response.get_data())
+    assert fetch_response.status_code == 200
+    assert not data['users']['active']
+
+
+def test_should_reject_invalid_user_request(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().post(
+        '/users',
+        data=json.dumps(
+            {
+                'user': {
+                    'emailAddress': 'test-user@example.gov.uk',
+                    'password': 'validpassword'
+                }
+            }
+        ),
+        content_type='application/json')
+    data = json.loads(response.get_data())
+    assert response.status_code == 400
+    assert data['error'] == 'Invalid JSON'
+    assert data['error_details'][0]['required'][0] == "'mobileNumber' is a required property"
+
+
+def test_should_reject_non_gov_emailst(notify_api, notify_db, notify_db_session):
+    response = notify_api.test_client().post(
+        '/users',
+        data=json.dumps(
+            {
+                'user': {
+                    'emailAddress': 'test-user@example.com',
+                    'mobileNumber': '+449999999999',
+                    'password': 'validpassword'
+                }
+            }
+        ),
+        content_type='application/json')
+    data = json.loads(response.get_data())
+    assert response.status_code == 400
+    assert data['error'] == 'Invalid JSON'

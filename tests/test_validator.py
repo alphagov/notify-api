@@ -1,5 +1,5 @@
 from app.main.validators import valid_sms_notification, valid_job_submission, \
-    valid_service_submission, valid_user_authentication_submission
+    valid_service_submission, valid_user_authentication_submission, valid_create_user_submission
 import pytest
 
 message = {
@@ -161,7 +161,6 @@ def service_test_cases():
     cases = [
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "This is a valid message"
             },
@@ -169,20 +168,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": "not-valid",
-                "userId": 1234,
-                "name": "This is a valid message"
-            },
-            (False, [
-                {
-                    'key': 'organisationId',
-                    'message': "'not-valid' is not of type 'integer'"
-                }
-            ])
-        ),
-        (
-            {
-                "organisationId": 1234,
                 "userId": "not-valid",
                 "name": "This is a valid message"
             },
@@ -195,7 +180,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "a" * 161  # too long
             },
@@ -204,7 +188,6 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234,
                 "name": "a"
             },
@@ -213,17 +196,9 @@ def service_test_cases():
         ),
         (
             {
-                "organisationId": 1234,
                 "userId": 1234
             },
             (False, [{'required': ["'name' is a required property"]}])
-        ),
-        (
-            {
-                "name": "This is a valid message",
-                "userId": 1234
-            },
-            (False, [{'required': ["'organisationId' is a required property"]}])
         ),
         (
             {
@@ -282,3 +257,83 @@ def user_authentication_test_cases():
 def test_should_validate_user_authentication(user_authentication_test_cases):
     for case, result in user_authentication_test_cases:
         assert valid_user_authentication_submission(case) == result
+
+
+@pytest.yield_fixture
+def user_creation_test_cases():
+    cases = [
+        (
+            {
+                "emailAddress": "valid@email.gov.uk",
+                "mobileNumber": "+447827992607",
+                "password": "valid-password"
+            },
+            (True, [])
+        ),
+        (
+            {
+                "emailAddress": "@email.gov.uk",
+                "mobileNumber": "+441234112112",
+                "password": "valid-password"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'@email.gov.uk' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
+                }
+            ])
+        ),
+         (
+            {
+                "emailAddress": "test@email.com",
+                "mobileNumber": "+441234112112",
+                "password": "valid-password"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'test@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.gov.uk",
+                "password": "valid-password"
+            },
+            (False, [{'required': ["'mobileNumber' is a required property"]}])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.gov.uk",
+                "mobileNumber": "invalid",
+                "password": "valid-password"
+            },
+            (False, [
+                {
+                    'key': 'mobileNumber',
+                    'message':  "'invalid' does not match '^\\\\+44[\\\\d]{10}$'"
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "valid@email.gov.uk",
+                "mobileNumber": "+441234112112"
+            },
+            (False, [{'required': ["'password' is a required property"]}])
+        ),
+        (
+            {
+                "password": "valid-password",
+                "mobileNumber": "+441234112112"
+            },
+            (False, [{'required': ["'emailAddress' is a required property"]}])
+        )
+    ]
+    yield cases
+
+
+def test_should_validate_user_creation(user_creation_test_cases):
+    for case, result in user_creation_test_cases:
+        assert valid_create_user_submission(case) == result

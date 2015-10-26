@@ -69,7 +69,6 @@ def create_service():
 
         service = Service(
             name=service_from_request['name'],
-            organisations_id=service_from_request['organisationId'],
             created_at=datetime.utcnow(),
             token_id=token.id,
             active=True,

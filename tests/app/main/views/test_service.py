@@ -38,7 +38,6 @@ def test_should_be_able_to_create_a_service(notify_api, notify_db, notify_db_ses
         data=json.dumps(
             {
                 'service': {
-                    'organisationId': 1234,
                     'userId': 1234,
                     'name': 'my service'
                 }
@@ -54,31 +53,12 @@ def test_should_be_able_to_create_a_service(notify_api, notify_db, notify_db_ses
     assert uuid_regex.match(data['service']['token']['token'])
 
 
-def test_should_reject_a_service_with_invalid_organisation(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().post(
-        '/service',
-        data=json.dumps(
-            {
-                'service': {
-                    'organisationId': 999,
-                    'userId': 1234,
-                    'name': 'this is ok'
-                }
-            }
-        ),
-        content_type='application/json')
-    data = json.loads(response.get_data())
-    assert response.status_code == 400
-    assert data['error'] == 'failed to create service'
-
-
 def test_should_reject_a_service_with_invalid_user(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/service',
         data=json.dumps(
             {
                 'service': {
-                    'organisationId': 1234,
                     'userId': 9999,
                     'name': 'this is ok'
                 }
@@ -96,7 +76,6 @@ def test_should_reject_an_invalid_service(notify_api, notify_db, notify_db_sessi
         data=json.dumps(
             {
                 'service': {
-                    'organisationId': 'not-valid',
                     'name': '1',
                     'userId': 'not-valid'
                 }
@@ -106,9 +85,8 @@ def test_should_reject_an_invalid_service(notify_api, notify_db, notify_db_sessi
     data = json.loads(response.get_data())
     assert response.status_code == 400
     assert data['error'] == 'Invalid JSON'
-    assert len(data['error_details']) == 3
+    assert len(data['error_details']) == 2
     assert {'key': 'userId', 'message': "'not-valid' is not of type 'integer'"} in data['error_details']
-    assert {'key': 'organisationId', 'message': "'not-valid' is not of type 'integer'"} in data['error_details']
     assert {'key': 'name', 'message': "'1' is too short"} in data['error_details']
 
 
@@ -129,7 +107,6 @@ def test_should_be_able_to_get_multiple_services_by_user_id(notify_api, notify_d
         data=json.dumps(
             {
                 'service': {
-                    'organisationId': 1234,
                     'userId': 1234,
                     'name': 'my service'
                 }

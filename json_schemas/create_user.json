@@ -1,0 +1,24 @@
+{
+  "id": "User authentication",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "emailAddress": {
+      "type": "string",
+      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]*)*.gov.uk"
+    },
+    "mobileNumber": {
+      "type": "string",
+      "pattern": "^\\+44[\\d]{10}$"
+    },
+    "password": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "emailAddress",
+    "mobileNumber",
+    "password"
+  ]
+}

@@ -75,9 +75,6 @@ class Service(db.Model):
     token_id = db.Column(db.BigInteger, db.ForeignKey('token.id'), index=True, unique=True)
     token = db.relationship('Token', backref=db.backref('services', lazy='dynamic'))
 
-    organisations_id = db.Column(db.Integer, db.ForeignKey('organisations.id'))
-    organisation = db.relationship('Organisation', backref=db.backref('services', lazy='dynamic'))
-
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
     active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
@@ -93,7 +90,6 @@ class Service(db.Model):
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'active': self.active,
             'limit': self.limit,
-            'organisationId': self.organisations_id,
             'token': self.token.serialize()
         }
 
@@ -106,6 +102,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email_address = db.Column(db.String(255), nullable=False, index=True)
     password = db.Column(db.String, index=False, unique=False, nullable=False)
+    mobile_number = db.Column(db.String, index=False, unique=True, nullable=False)
     active = db.Column(db.Boolean, index=False, unique=False, nullable=False)
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
     updated_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
@@ -113,8 +110,6 @@ class User(db.Model):
     logged_in_at = db.Column(db.DateTime, nullable=True)
     failed_login_count = db.Column(db.Integer, nullable=False, default=0)
     role = db.Column(db.String, index=False, unique=False, nullable=False)
-    organisation_id = db.Column(db.Integer, db.ForeignKey('organisations.id'), index=True, unique=False, nullable=True)
-    organisation = db.relationship('Organisation', backref=db.backref('users', lazy='dynamic'))
 
     def serialize(self):
         serialized = {
@@ -126,7 +121,6 @@ class User(db.Model):
             'updatedAt': self.updated_at.strftime(DATETIME_FORMAT),
             'passwordChangedAt': self.password_changed_at.strftime(DATETIME_FORMAT),
             'role': self.role,
-            'organisationId': self.organisation_id,
             'failedLoginCount': self.failed_login_count
         }
 
