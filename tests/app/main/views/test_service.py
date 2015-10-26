@@ -49,6 +49,7 @@ def test_should_be_able_to_create_a_service(notify_api, notify_db, notify_db_ses
     assert 'service' in data
     assert data['service']['name'] == 'my service'
     assert data['service']['active']
+    assert data['service']['restricted']
     assert data['service']['limit'] == 100
     assert uuid_regex.match(data['service']['token']['token'])
 

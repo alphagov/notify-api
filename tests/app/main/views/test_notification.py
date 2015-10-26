@@ -148,6 +148,7 @@ def test_should_reject_notification_if_job_id_not_on_service(notify_api, notify_
         name="unrelated service",
         created_at=datetime.now(),
         active=True,
+        restricted=True,
         limit=100
     )
     job = Job(id=1000, name="job test", created_at=datetime.now())
