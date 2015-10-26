@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import json
-from app.models import Job, Service
+from app.models import Job, Service, Token, User
 from app import db
 
 
@@ -197,6 +197,81 @@ def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify
     assert data['notification']['method'] == "sms"
     assert data['notification']['status'] == "created"
     assert data['notification']['jobId']
+
+
+def test_should_permit_allowed_numbers_on_restricted_service(notify_api, notify_db, notify_db_session, notify_config):
+    user = User.query.get(1234)
+    token = Token(id=1000, token="restricted")
+    service = Service(
+        id=1000,
+        name='restricted',
+        restricted=True,
+        active=True,
+        limit=100,
+        created_at=datetime.utcnow(),
+        token=token
+    )
+    service.users.append(user)
+    db.session.add(token)
+    db.session.add(service)
+    db.session.commit()
+
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer restricted'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+449999234234",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    print(data)
+    assert response.status_code == 201
+    assert 'notification' in data
+    assert data['notification']['message'] == "hello world"
+    assert data['notification']['method'] == "sms"
+    assert data['notification']['status'] == "created"
+    assert data['notification']['jobId']
+
+
+def test_should_limit_users_on_restricted_service(notify_api, notify_db, notify_db_session, notify_config):
+    user = User.query.get(1234)
+    token = Token(id=1000, token="restricted")
+    service = Service(
+        id=1000,
+        name='restricted',
+        restricted=True,
+        active=True,
+        limit=100,
+        created_at=datetime.utcnow(),
+        token=token
+    )
+    service.users.append(user)
+    db.session.add(token)
+    db.session.add(service)
+    db.session.commit()
+
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer restricted'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world"
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    assert response.status_code == 400
+    assert data['error'] == 'Restricted service: cannot send notification to this number'
 
 
 def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify_db_session, notify_config):
