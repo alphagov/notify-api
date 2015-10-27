@@ -10,6 +10,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc, asc
 
 
+def user_is_a_platform_admin(user_id):
+    user = User.query.get(user_id)
+    if user is not None and user.role == 'platform-admin':
+        return True
+    return False
+
+
 @main.route('/service/<int:service_id>/users', methods=['GET'])
 def fetch_users_for_service(service_id):
     users = User.query.filter(
@@ -23,10 +30,13 @@ def fetch_users_for_service(service_id):
 
 @main.route('/user/<int:user_id>/service/<int:service_id>', methods=['GET'])
 def fetch_service_by_user_id_and_service_id(user_id, service_id):
-    service = Service.query.filter(
-        Service.id == service_id,
-        Service.users.any(id=user_id)
-    ).first_or_404()
+    if user_is_a_platform_admin(user_id):
+        service = Service.query.get(service_id)
+    else:
+        service = Service.query.filter(
+            Service.id == service_id,
+            Service.users.any(id=user_id)
+        ).first_or_404()
 
     return jsonify(
         service=service.serialize()
@@ -35,9 +45,12 @@ def fetch_service_by_user_id_and_service_id(user_id, service_id):
 
 @main.route('/user/<int:user_id>/services', methods=['GET'])
 def fetch_services_by_user(user_id):
-    services = Service.query.filter(
-        Service.users.any(id=user_id)
-    ).order_by(desc(Service.created_at)).all()
+    if user_is_a_platform_admin(user_id):
+        services = Service.query.order_by(desc(Service.created_at)).all()
+    else:
+        services = Service.query.filter(
+            Service.users.any(id=user_id)
+        ).order_by(desc(Service.created_at)).all()
 
     return jsonify(
         services=[service.serialize() for service in services]

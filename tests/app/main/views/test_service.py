@@ -1,5 +1,8 @@
 from flask import json
 from . import uuid_regex
+from app.models import User
+from datetime import datetime
+from app import db
 
 
 def test_should_be_able_to_get_service_by_id_and_user_id(notify_api, notify_db, notify_db_session):
@@ -11,8 +14,58 @@ def test_should_be_able_to_get_service_by_id_and_user_id(notify_api, notify_db, 
     assert data['service']['token']['token'] == '1234'
 
 
+def test_should_be_able_to_get_service_as_platform_admin(notify_api, notify_db, notify_db_session):
+
+    # Setup a dummy user for tests
+    user = User(
+        id=9999,
+        email_address="test-user@example-2.org",
+        mobile_number="+449999123123",
+        password='password',
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        role='platform-admin'
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    response = notify_api.test_client().get('/user/9999/service/1234')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert data['service']['id'] == 1234
+    assert data['service']['name'] == 'service test'
+    assert data['service']['token']['token'] == '1234'
+
+
 def test_should_be_able_to_get_all_services_for_a_user(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get('/user/1234/services')
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['services']) == 1
+    assert data['services'][0]['id'] == 1234
+    assert data['services'][0]['name'] == 'service test'
+
+
+def test_should_be_able_to_get_all_services_as_platform_admin(notify_api, notify_db, notify_db_session):
+
+    # Setup a dummy user for tests
+    user = User(
+        id=9999,
+        email_address="test-user@example-2.org",
+        mobile_number="+449999123123",
+        password='password',
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        role='platform-admin'
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    response = notify_api.test_client().get('/user/9999/services')
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert len(data['services']) == 1
