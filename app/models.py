@@ -2,6 +2,7 @@ from . import db
 from flask import current_app
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DATE_FORMAT = "%Y-%m-%d"
 
 
 class Notification(db.Model):
@@ -108,6 +109,15 @@ class Usage(db.Model):
     day = db.Column(db.Date, index=False, unique=False, nullable=False)
     count = db.Column(db.BigInteger, index=False, unique=False, nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
+
+    def serialize(self):
+        serialized = {
+            'id': self.id,
+            'day': self.day.strftime(DATE_FORMAT),
+            'count': self.count
+        }
+
+        return filter_null_value_fields(serialized)
 
 
 class User(db.Model):

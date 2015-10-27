@@ -217,9 +217,11 @@ def test_records_new_usage(notify_api, notify_db, notify_db_session, notify_conf
         content_type='application/json'
     )
     assert response.status_code == 201
-    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
-    assert len(new_usage) == 1
-    assert new_usage[0].count == 1
+
+    usage_response = notify_api.test_client().get('/service/1234/usage')
+    data = json.loads(usage_response.get_data())
+    assert len(data['usage']) == 1
+    assert data['usage'][0]['count'] == 1
 
 
 def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_session, notify_config):
@@ -239,9 +241,11 @@ def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_sess
         }),
         content_type='application/json'
     )
-    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
-    assert len(new_usage) == 1
-    assert new_usage[0].count == 1
+
+    usage_response_1 = notify_api.test_client().get('/service/1234/usage')
+    data = json.loads(usage_response_1.get_data())
+    assert len(data['usage']) == 1
+    assert data['usage'][0]['count'] == 1
 
     notify_api.test_client().post(
         '/sms/notification',
@@ -257,9 +261,10 @@ def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_sess
         content_type='application/json'
     )
 
-    new_usage = Usage.query.filter(Usage.service_id == 1234).all()
-    assert len(new_usage) == 1
-    assert new_usage[0].count == 2
+    usage_response_2 = notify_api.test_client().get('/service/1234/usage')
+    data = json.loads(usage_response_2.get_data())
+    assert len(data['usage']) == 1
+    assert data['usage'][0]['count'] == 2
 
 
 def test_should_reject_notification_if_over_limit(notify_api, notify_db, notify_db_session, notify_config):
