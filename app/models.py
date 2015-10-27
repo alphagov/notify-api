@@ -81,7 +81,7 @@ class Service(db.Model):
 
     limit = db.Column(db.BigInteger, index=False, unique=False, nullable=False)
 
-    users = db.relationship('User', secondary=user_to_service, backref='services')
+    users = db.relationship('User', secondary=user_to_service, backref=db.backref('services', lazy='dynamic'))
 
     usage = db.relationship('Usage', backref=db.backref('usage'))
 

@@ -1,5 +1,5 @@
 from app.main.validators import valid_sms_notification, valid_job_submission, \
-    valid_service_submission, valid_user_authentication_submission, valid_create_user_submission
+    valid_service_submission, valid_user_authentication_submission, valid_create_user_submission, valid_email_address
 import pytest
 
 message = {
@@ -283,7 +283,7 @@ def user_creation_test_cases():
                 }
             ])
         ),
-         (
+        (
             {
                 "emailAddress": "test@email.com",
                 "mobileNumber": "+441234112112",
@@ -312,7 +312,7 @@ def user_creation_test_cases():
             (False, [
                 {
                     'key': 'mobileNumber',
-                    'message':  "'invalid' does not match '^\\\\+44[\\\\d]{10}$'"
+                    'message': "'invalid' does not match '^\\\\+44[\\\\d]{10}$'"
                 }
             ])
         ),
@@ -337,3 +337,47 @@ def user_creation_test_cases():
 def test_should_validate_user_creation(user_creation_test_cases):
     for case, result in user_creation_test_cases:
         assert valid_create_user_submission(case) == result
+
+
+@pytest.yield_fixture
+def email_address_test_cases():
+    cases = [
+        (
+            {
+                "emailAddress": "valid@email.gov.uk"
+            },
+            (True, [])
+        ),
+         (
+            {
+                "emailAddress": "test@email.com"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'test@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
+                }
+            ])
+        ),
+        (
+            {
+                "emailAddress": "@email.gov.uk"
+            },
+            (False, [
+                {
+                    'key': 'emailAddress',
+                    'message': "'@email.gov.uk' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
+                }
+            ])
+        ),
+        (
+            {},
+            (False, [{'required': ["'emailAddress' is a required property"]}])
+        )
+    ]
+    yield cases
+
+
+def test_should_validate_email_address(email_address_test_cases):
+    for case, result in email_address_test_cases:
+        assert valid_email_address(case) == result

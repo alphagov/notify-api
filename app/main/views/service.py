@@ -19,13 +19,14 @@ def user_is_a_platform_admin(user_id):
 
 @main.route('/service/<int:service_id>/users', methods=['GET'])
 def fetch_users_for_service(service_id):
-    users = User.query.filter(
-        Service.id == service_id
-    ).order_by(asc(User.created_at)).all()
+    service = Service.query.get(service_id)
 
-    return jsonify(
-        users=[user.serialize() for user in users]
-    )
+    if service:
+        return jsonify(
+            users=[user.serialize() for user in service.users]
+        )
+    else:
+        abort(404, "service not found")
 
 
 @main.route('/user/<int:user_id>/service/<int:service_id>', methods=['GET'])

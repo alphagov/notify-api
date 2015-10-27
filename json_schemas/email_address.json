@@ -1,0 +1,15 @@
+{
+  "id": "Email address",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "emailAddress": {
+      "type": "string",
+      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]*)*.gov.uk"
+    }
+  },
+  "required": [
+    "emailAddress"
+  ]
+}
