@@ -348,28 +348,6 @@ def email_address_test_cases():
             },
             (True, [])
         ),
-         (
-            {
-                "emailAddress": "test@email.com"
-            },
-            (False, [
-                {
-                    'key': 'emailAddress',
-                    'message': "'test@email.com' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
-                }
-            ])
-        ),
-        (
-            {
-                "emailAddress": "@email.gov.uk"
-            },
-            (False, [
-                {
-                    'key': 'emailAddress',
-                    'message': "'@email.gov.uk' does not match '^[^@^\\\\s]+@[^@^\\\\.^\\\\s]+(\\\\.[^@^\\\\.^\\\\s]*)*.gov.uk'"  # noqa
-                }
-            ])
-        ),
         (
             {},
             (False, [{'required': ["'emailAddress' is a required property"]}])

@@ -5,8 +5,7 @@
   "additionalProperties": false,
   "properties": {
     "emailAddress": {
-      "type": "string",
-      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]*)*.gov.uk"
+      "type": "string"
     }
   },
   "required": [
