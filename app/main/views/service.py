@@ -4,7 +4,7 @@ from flask import jsonify, abort, current_app
 from .. import main
 from app import db
 from app.main.views import get_json_from_request
-from app.models import Service, Token, User
+from app.models import Service, Token, User, Usage
 from app.main.validators import valid_service_submission
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc, asc
@@ -41,6 +41,15 @@ def fetch_service_by_user_id_and_service_id(user_id, service_id):
 
     return jsonify(
         service=service.serialize()
+    )
+
+
+@main.route('/service/<int:service_id>/usage', methods=['GET'])
+def fetch_usage_for_service(service_id):
+    all_the_usage = Usage.query.filter(Usage.service_id == service_id).order_by(desc(Usage.day)).all()
+
+    return jsonify(
+        usage=[usage.serialize() for usage in all_the_usage]
     )
 
 
