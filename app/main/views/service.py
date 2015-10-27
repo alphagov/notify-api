@@ -58,6 +58,42 @@ def fetch_services_by_user(user_id):
     )
 
 
+@main.route('/service/<int:service_id>/activate', methods=['POST'])
+def activate_service(service_id):
+    service = Service.query.get(service_id)
+
+    if not service:
+        abort(404, "Service not found")
+
+    service.active = True
+    try:
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(service=service.serialize())
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to activate service")
+
+
+@main.route('/service/<int:service_id>/deactivate', methods=['POST'])
+def deactivate_service(service_id):
+    service = Service.query.get(service_id)
+
+    if not service:
+        abort(404, "Service not found")
+
+    service.active = False
+    try:
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(service=service.serialize())
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to activate service")
+
+
 @main.route('/service', methods=['POST'])
 def create_service():
     service_from_request = get_json_from_request('service')
