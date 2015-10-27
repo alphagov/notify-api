@@ -3,10 +3,78 @@ from flask import jsonify, abort, request, current_app
 from .. import main
 from app import db
 from app.main.encryption import hashpw, checkpw
-from app.main.validators import valid_user_authentication_submission, valid_create_user_submission
+from app.main.validators import valid_user_authentication_submission, valid_create_user_submission, valid_email_address
 from app.main.views import get_json_from_request
-from app.models import User
+from app.models import User, Service
 from sqlalchemy.exc import IntegrityError
+
+
+def check_user_and_service(service_id, email_address):
+    service = Service.query.get(service_id)
+    if not service:
+        abort(404, 'Service not found')
+
+    user = User.query.filter(
+        User.email_address == email_address.lower()
+    ).first()
+
+    if not user:
+        abort(404, "No user with given email address")
+
+    return user, service
+
+
+@main.route('/service/<int:service_id>/remove-user', methods=['POST'])
+def remove_user_from_service(service_id):
+    json_request = get_json_from_request('user')
+
+    validation_result, validation_errors = valid_email_address(json_request)
+    if not validation_result:
+        return jsonify(
+            error="Invalid JSON",
+            error_details=validation_errors
+        ), 400
+
+    user, service = check_user_and_service(service_id, json_request['emailAddress'])
+
+    try:
+        service.users.remove(user)
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(
+            users=service.serialize()
+        ), 200
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to remove user from service")
+
+
+@main.route('/service/<int:service_id>/add-user', methods=['POST'])
+def add_user_to_service(service_id):
+
+    json_request = get_json_from_request('user')
+
+    validation_result, validation_errors = valid_email_address(json_request)
+    if not validation_result:
+        return jsonify(
+            error="Invalid JSON",
+            error_details=validation_errors
+        ), 400
+
+    user, service = check_user_and_service(service_id, json_request['emailAddress'])
+
+    service.users.append(user)
+    try:
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(
+            users=service.serialize()
+        ), 200
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to add user to service")
 
 
 @main.route('/users/<int:user_id>', methods=['GET'])
