@@ -9,7 +9,8 @@ SCHEMA_NAMES = [
     'job',
     'service',
     'user_authentication',
-    'create_user'
+    'create_user',
+    'email_address'
 ]
 
 FORMAT_CHECKER = FormatChecker()
@@ -54,6 +55,10 @@ def valid_user_authentication_submission(submitted_json):
 
 def valid_create_user_submission(submitted_json):
     return __validate_against_schema('create_user', submitted_json)
+
+
+def valid_email_address(submitted_json):
+    return __validate_against_schema('email_address', submitted_json)
 
 
 def __validate_against_schema(schema, submitted_json):
