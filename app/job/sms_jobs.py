@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models import Notification
 from app import db, sms_wrapper, create_app
 from sqlalchemy import asc
-from twilio import TwilioRestException
+from app.connectors.sms.clients import ClientException
 
 
 def send_sms():
@@ -14,18 +14,19 @@ def send_sms():
         notifications = Notification.query\
             .filter(Notification.status == 'created')\
             .order_by(asc(Notification.created_at)).all()
-        print(notifications)
         for notification in notifications:
             try:
-                response = sms_wrapper.send(notification.to, notification.message, notification.id)
+                (message_id, sender) = sms_wrapper.send(notification.to, notification.message, notification.id)
                 notification.status = 'sent'
                 notification.sent_at = datetime.utcnow()
-                notification.sender_id = response.sid
+                notification.sender_id = message_id
+                notification.sender = sender
                 db.session.add(notification)
                 db.session.commit()
-            except TwilioRestException as e:
+            except ClientException as e:
                 print(e)
                 notification.status = 'error'
+                notification.sender = e.sender
                 db.session.add(notification)
                 db.session.commit()
 
@@ -39,12 +40,12 @@ def fetch_sms_status():
             .order_by(asc(Notification.sent_at)).all()
         for notification in notifications:
             try:
-                response_status = sms_wrapper.status(notification.sender_id)
+                response_status = sms_wrapper.status(notification.sender_id, notification.sender)
                 if response_status:
                     notification.status = response_status
                     if response_status == 'delivered':
                         notification.delivered_at = datetime.utcnow()
                     db.session.add(notification)
                     db.session.commit()
-            except TwilioRestException as e:
+            except ClientException as e:
                 print(e)

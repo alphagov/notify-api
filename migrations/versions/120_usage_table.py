@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 43cbe15742d
+Revision ID: 120_usage_table
 Revises: 110_add_restricted_to_service
 Create Date: 2015-10-26 14:03:04.008629
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '43cbe15742d'
+revision = '120_usage_table'
 down_revision = '110_add_restricted_to_service'
 
 from alembic import op
