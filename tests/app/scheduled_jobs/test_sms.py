@@ -3,18 +3,11 @@ from app.models import Notification
 from datetime import datetime
 from app import db, sms_wrapper
 from app.job.sms_jobs import send_sms, fetch_sms_status
-from twilio import TwilioRestException
-
-
-class TwilioResponse:
-
-    def __init__(self, sid=None, status=None):
-        self.sid = sid
-        self.status = status
+from app.connectors.sms.clients import ClientException
 
 
 def test_should_send_sms_all_notifications(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send', return_value=TwilioResponse(sid="1234"))
+    mocker.patch('app.sms_wrapper.send', return_value=("1234", "twilio"))
     create_notification = Notification(
         id=1000,
         to="to",
@@ -34,30 +27,33 @@ def test_should_send_sms_all_notifications(notify_api, notify_db, notify_db_sess
     assert read_notification_1.status == 'sent'
     assert read_notification_1.sent_at >= read_notification_1.created_at
     assert read_notification_1.sender_id == "1234"
+    assert read_notification_1.sender == "twilio"
 
     # normal test session one
     read_notification_2 = Notification.query.get(1234)
     assert read_notification_2.status == 'sent'
     assert read_notification_2.sent_at >= read_notification_2.created_at
     assert read_notification_2.sender_id == "1234"
+    assert read_notification_1.sender == "twilio"
 
     # sms calls made correctly
     sms_wrapper.send.assert_has_calls([call('phone-number', 'this is a message', 1234), call("to", "message", 1000)])
 
 
 def test_should_send_sms_notification(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send', return_value=TwilioResponse(sid="1234"))
+    mocker.patch('app.sms_wrapper.send', return_value=("1234", "twilio"))
     send_sms()
 
     read_notification = Notification.query.get(1234)
     assert read_notification.status == 'sent'
     assert read_notification.sender_id == "1234"
+    assert read_notification.sender == "twilio"
     assert read_notification.sent_at >= read_notification.created_at
     sms_wrapper.send.assert_called_once_with('phone-number', 'this is a message', 1234)
 
 
 def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send', return_value=TwilioResponse(sid="1234"))
+    mocker.patch('app.sms_wrapper.send', return_value=("1234", "twilio"))
     sent_at = datetime.utcnow()
     create_notification = Notification(
         id=1000,
@@ -66,6 +62,7 @@ def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_
         created_at=datetime.utcnow(),
         sent_at=sent_at,
         status='sent',
+        sender='twilio',
         method='sms',
         job_id=1234,
         sender_id="999"
@@ -77,14 +74,17 @@ def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_
 
     # new one
     read_notification_1 = Notification.query.get(1000)
+    print(read_notification_1.sender)
     assert read_notification_1.status == 'sent'
     assert read_notification_1.sender_id == '999'
+    assert read_notification_1.sender == 'twilio'
     assert read_notification_1.sent_at == sent_at
 
     # normal test session one
     read_notification_2 = Notification.query.get(1234)
     assert read_notification_2.status == 'sent'
     assert read_notification_2.sender_id == '1234'
+    assert read_notification_2.sender == 'twilio'
     assert read_notification_2.sent_at >= read_notification_2.created_at
 
     # sms calls made correctly
@@ -92,10 +92,11 @@ def test_only_send_notifications_in_created_state(notify_api, notify_db, notify_
 
 
 def test_should_put_notification_into_error_if_failed(notify_api, notify_db, notify_db_session, notify_config, mocker):
-    mocker.patch('app.sms_wrapper.send', side_effect=TwilioRestException(503, "uri", "Failed"))
+    mocker.patch('app.sms_wrapper.send', side_effect=ClientException('twilio'))
     send_sms()
     read_notification = Notification.query.get(1234)
     assert read_notification.status == 'error'
+    assert read_notification.sender == 'twilio'
     assert read_notification.sent_at is None
 
     # sms calls made correctly
@@ -115,13 +116,15 @@ def test_should_set_status_for_all_send_notifications(notify_api, notify_db, not
         status='sent',
         method='sms',
         job_id=1234,
-        sender_id="1"
+        sender_id="1",
+        sender="twilio"
     )
     db.session.add(create_notification)
 
     notification = Notification.query.get(1234)
     notification.status = 'sent'
     notification.sender_id = '2'
+    notification.sender = 'twilio'
     db.session.add(notification)
     db.session.commit()
 
@@ -129,7 +132,7 @@ def test_should_set_status_for_all_send_notifications(notify_api, notify_db, not
     read_notification = Notification.query.get(1234)
     assert read_notification.status == 'delivered'
     assert read_notification.delivered_at >= read_notification.created_at
-    sms_wrapper.status.assert_has_calls([call("1"), call("2")])
+    sms_wrapper.status.assert_has_calls([call("1", "twilio"), call("2", "twilio")])
 
 
 def test_should_set_status_for_send_notifications(notify_api, notify_db, notify_db_session, notify_config, mocker):
@@ -137,6 +140,7 @@ def test_should_set_status_for_send_notifications(notify_api, notify_db, notify_
     notification = Notification.query.get(1234)
     notification.status = 'sent'
     notification.sender_id = '1234'
+    notification.sender = 'twilio'
     db.session.add(notification)
     db.session.commit()
 
@@ -144,7 +148,7 @@ def test_should_set_status_for_send_notifications(notify_api, notify_db, notify_
     read_notification = Notification.query.get(1234)
     assert read_notification.status == 'delivered'
     assert read_notification.delivered_at >= read_notification.created_at
-    sms_wrapper.status.assert_called_once_with("1234")
+    sms_wrapper.status.assert_called_once_with("1234", 'twilio')
 
 
 def test_should_not_set_delivered_at_if_not_delivered(notify_api, notify_db, notify_db_session, notify_config, mocker):
@@ -152,6 +156,7 @@ def test_should_not_set_delivered_at_if_not_delivered(notify_api, notify_db, not
     notification = Notification.query.get(1234)
     notification.status = 'sent'
     notification.sender_id = '1234'
+    notification.sender = 'twilio'
     db.session.add(notification)
     db.session.commit()
 
@@ -159,7 +164,7 @@ def test_should_not_set_delivered_at_if_not_delivered(notify_api, notify_db, not
     read_notification = Notification.query.get(1234)
     assert read_notification.status == 'failed'
     assert not read_notification.delivered_at
-    sms_wrapper.status.assert_called_once_with("1234")
+    sms_wrapper.status.assert_called_once_with("1234", 'twilio')
 
 
 def test_should_not_check_status_unless_sent(notify_api, notify_db, notify_db_session, notify_config, mocker):

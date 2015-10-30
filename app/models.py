@@ -21,6 +21,7 @@ class Notification(db.Model):
     status = db.Column(db.String(255), nullable=False)
     method = db.Column(db.String(255), nullable=False)
     sender_id = db.Column(db.String(255), index=True, nullable=True)
+    sender = db.Column(db.String(255), index=True, nullable=True)
 
     def serialize(self):
         serialized = {
@@ -32,7 +33,8 @@ class Notification(db.Model):
             'deliveredAt': none_or_formatted_date(self.delivered_at),
             'status': self.status,
             'method': self.method,
-            'jobId': self.job_id
+            'jobId': self.job_id,
+            'sender': self.sender
         }
 
         return filter_null_value_fields(serialized)
