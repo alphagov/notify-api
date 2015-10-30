@@ -45,6 +45,8 @@ class Job(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.String(255), nullable=True)
+
     created_at = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
     service_id = db.Column(db.BigInteger, db.ForeignKey('services.id'), index=True, unique=False)
@@ -54,6 +56,7 @@ class Job(db.Model):
         serialized = {
             'id': self.id,
             'name': self.name,
+            'filename': self.filename,
             'createdAt': self.created_at.strftime(DATETIME_FORMAT),
             'serviceId': self.service_id
         }

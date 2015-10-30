@@ -199,6 +199,34 @@ def test_should_allow_correctly_formed_sms_request(notify_api, notify_db, notify
     assert data['notification']['jobId']
 
 
+def test_should_allow_correctly_formed_sms_request_with_desc(notify_api, notify_db, notify_db_session, notify_config):
+    response = notify_api.test_client().post(
+        '/sms/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "+441234512345",
+                "message": "hello world",
+                "description": "description"
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+    assert response.status_code == 201
+    assert 'notification' in data
+    assert data['notification']['message'] == "hello world"
+    assert data['notification']['method'] == "sms"
+    assert data['notification']['status'] == "created"
+    assert data['notification']['jobId']
+
+    job = Job.query.get(data['notification']['jobId'])
+
+    assert job.name == "description"
+
+
 def test_records_new_usage(notify_api, notify_db, notify_db_session, notify_config):
     current_usage = Usage.query.filter(Usage.service_id == 1234).all()
     assert len(current_usage) == 0
