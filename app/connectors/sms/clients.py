@@ -91,21 +91,20 @@ class PlivoClient(SmsClient):
             'type': "sms",
         }
 
-        try:
-            # Sample successful output
-            # (202,
-            #       {
-            #               u'message': u'message(s) queued',
-            #               u'message_uuid': [u'b795906a-8a79-11e4-9bd8-22000afa12b9'],
-            #               u'api_id': u'b77af520-8a79-11e4-b153-22000abcaa64'
-            #       }
-            # )
-            response = self.client.send_message(params)
-            self.log(message_id)
-            print(response)
+        # Sample successful output
+        # (202,
+        #       {
+        #               u'message': u'message(s) queued',
+        #               u'message_uuid': [u'b795906a-8a79-11e4-9bd8-22000afa12b9'],
+        #               u'api_id': u'b77af520-8a79-11e4-b153-22000abcaa64'
+        #       }
+        # )
+        response = self.client.send_message(params)
+        self.log(message_id)
+        if 'message_uuid' in response[1]:
             return response[1]['message_uuid'][0], self.identifier
-        except TwilioRestException as e:
-            print(e)
+        else:
+            print(response)
             raise ClientException(self.identifier)
 
     def status(self, message_id):
