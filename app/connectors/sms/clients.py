@@ -102,6 +102,7 @@ class PlivoClient(SmsClient):
             # )
             response = self.client.send_message(params)
             self.log(message_id)
+            print(response)
             return response[1]['message_uuid'][0], self.identifier
         except TwilioRestException as e:
             print(e)
