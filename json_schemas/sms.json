@@ -15,6 +15,11 @@
     },
     "jobId": {
       "type": "integer"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 1
     }
   },
   "required": [

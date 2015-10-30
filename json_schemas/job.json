@@ -9,6 +9,11 @@
       "maxLength": 160,
       "minLength": 5
     },
+    "filename": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 5
+    },
     "serviceId": {
       "type": "integer"
     }

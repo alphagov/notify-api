@@ -74,6 +74,27 @@ def test_should_be_able_to_create_a_job(notify_api, notify_db_session, notify_co
     assert 'id' in data['job']
 
 
+def test_should_be_able_to_create_a_job_with_filename(notify_api, notify_db_session, notify_config):
+    response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps(
+            {
+                'job': {
+                    'serviceId': 1234,
+                    'name': 'my job',
+                    'filename': 'filename.csv'
+                }
+            }
+        ),
+        content_type='application/json')
+    data = json.loads(response.get_data())
+    assert response.status_code == 201
+    assert 'job' in data
+    assert 'id' in data['job']
+    assert 'filename' in data['job']
+    assert data['job']['filename'] == 'filename.csv'
+
+
 def test_should_reject_an_invalid_job(notify_api, notify_config):
     response = notify_api.test_client().post(
         '/job',
