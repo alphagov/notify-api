@@ -15,6 +15,7 @@ def send_sms():
             .filter(Notification.status == 'created')\
             .order_by(asc(Notification.created_at)).all()
         for notification in notifications:
+            print("Processing {}".format(notification.id))
             try:
                 (message_id, sender) = sms_wrapper.send(notification.to, notification.message, notification.id)
                 notification.status = 'sent'
