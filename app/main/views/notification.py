@@ -95,7 +95,7 @@ def create_sms_notification():
     )
 
     if 'description' in notification_request:
-        notification.description = notification_request['description']
+        job.name = notification_request['description']
 
     try:
         db.session.add(usage)

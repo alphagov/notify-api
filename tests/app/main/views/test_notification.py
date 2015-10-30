@@ -221,7 +221,10 @@ def test_should_allow_correctly_formed_sms_request_with_desc(notify_api, notify_
     assert data['notification']['method'] == "sms"
     assert data['notification']['status'] == "created"
     assert data['notification']['jobId']
-    assert data['notification']['description'] == "description"
+
+    job = Job.query.get(data['notification']['jobId'])
+
+    assert job.name == "description"
 
 
 def test_records_new_usage(notify_api, notify_db, notify_db_session, notify_config):
