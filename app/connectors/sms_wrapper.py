@@ -1,4 +1,4 @@
-from .sms.clients import TwilioClient
+from .sms.clients import TwilioClient, PlivoClient
 import random
 
 
@@ -13,7 +13,9 @@ class SmsWrapper:
 
     def init_app(self, app):
         twilio = TwilioClient(app)
+        plivo = PlivoClient(app)
         self.__clients__.update({twilio.identifier: twilio})
+        self.__clients__.update({plivo.identifier: plivo})
 
     def send(self, to, message, message_id):
         """
