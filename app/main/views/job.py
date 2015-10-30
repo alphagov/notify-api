@@ -45,6 +45,10 @@ def create_job():
         service_id=job_from_request['serviceId'],
         created_at=datetime.utcnow()
     )
+
+    if "filename" in job_from_request:
+        job.filename = job_from_request['filename']
+
     try:
         db.session.add(job)
         db.session.commit()

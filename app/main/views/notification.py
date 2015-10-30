@@ -93,6 +93,10 @@ def create_sms_notification():
         created_at=datetime.utcnow(),
         job=job
     )
+
+    if 'description' in notification_request:
+        notification.description = notification_request['description']
+
     try:
         db.session.add(usage)
         db.session.add(notification)

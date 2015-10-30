@@ -26,6 +26,33 @@ def sms_test_cases():
             },
             (True, [])
         ),
+         (
+            {
+                "to": "+447827992607",
+                "message": "This is a valid message",
+                "jobId": 123,
+                "description": 'description'
+            },
+            (True, [])
+        ),
+         (
+            {
+                "to": "+447827992607",
+                "message": "This is a valid message",
+                "jobId": 123,
+                "description": ""
+            },
+            (False, [{'message': "'' is too short", 'key': 'description'}])
+        ),
+         (
+            {
+                "to": "+447827992607",
+                "message": "message",
+                "description": "a" * 161  # too long
+            },
+            (False, [{'key': 'description',
+                      'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
+        ),
         (
             {
                 "to": "+447827992607",
@@ -109,6 +136,14 @@ def job_test_cases():
         ),
         (
             {
+                "serviceId": 1234,
+                "name": "This is a valid message",
+                "filename": "filename"
+            },
+            (True, [])
+        ),
+        (
+            {
                 "serviceId": "not-valid",
                 "name": "This is a valid message"
             },
@@ -127,6 +162,15 @@ def job_test_cases():
             (False, [{'key': 'name',
                       'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
         ),
+         (
+            {
+                "serviceId": 1234,
+                "filename": "a" * 161,  # too long
+                "name": "job name"
+            },
+            (False, [{'key': 'filename',
+                      'message': "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"}])  # noqa
+        ),
         (
             {
                 "serviceId": 1234,
@@ -134,6 +178,15 @@ def job_test_cases():
             },
             (False, [{'key': 'name',
                       'message': "'a' is too short"}])
+        ),
+        (
+            {
+                "serviceId": 1234,
+                "name": "job name",
+                "filename": ""
+            },
+            (False, [{'key': 'filename',
+                      'message': "'' is too short"}])
         ),
         (
             {
