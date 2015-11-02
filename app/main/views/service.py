@@ -8,6 +8,7 @@ from app.models import Service, Token, User, Usage
 from app.main.validators import valid_service_submission
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc, asc
+from app.main.auth.token_auth import token_type_required
 
 
 def user_is_a_platform_admin(user_id):
@@ -18,6 +19,7 @@ def user_is_a_platform_admin(user_id):
 
 
 @main.route('/service/<int:service_id>/users', methods=['GET'])
+@token_type_required('admin')
 def fetch_users_for_service(service_id):
     service = Service.query.get(service_id)
 
@@ -30,6 +32,7 @@ def fetch_users_for_service(service_id):
 
 
 @main.route('/user/<int:user_id>/service/<int:service_id>', methods=['GET'])
+@token_type_required('admin')
 def fetch_service_by_user_id_and_service_id(user_id, service_id):
     if user_is_a_platform_admin(user_id):
         service = Service.query.get(service_id)
@@ -45,6 +48,7 @@ def fetch_service_by_user_id_and_service_id(user_id, service_id):
 
 
 @main.route('/service/<int:service_id>/usage', methods=['GET'])
+@token_type_required('admin')
 def fetch_usage_for_service(service_id):
     all_the_usage = Usage.query.filter(Usage.service_id == service_id).order_by(desc(Usage.day)).all()
 
@@ -54,6 +58,7 @@ def fetch_usage_for_service(service_id):
 
 
 @main.route('/user/<int:user_id>/services', methods=['GET'])
+@token_type_required('admin')
 def fetch_services_by_user(user_id):
     if user_is_a_platform_admin(user_id):
         services = Service.query.order_by(desc(Service.created_at)).all()
@@ -68,6 +73,7 @@ def fetch_services_by_user(user_id):
 
 
 @main.route('/service/<int:service_id>/activate', methods=['POST'])
+@token_type_required('admin')
 def activate_service(service_id):
     service = Service.query.get(service_id)
 
@@ -86,6 +92,7 @@ def activate_service(service_id):
 
 
 @main.route('/service/<int:service_id>/deactivate', methods=['POST'])
+@token_type_required('admin')
 def deactivate_service(service_id):
     service = Service.query.get(service_id)
 
@@ -104,6 +111,7 @@ def deactivate_service(service_id):
 
 
 @main.route('/service', methods=['POST'])
+@token_type_required('admin')
 def create_service():
     service_from_request = get_json_from_request('service')
 
@@ -122,7 +130,7 @@ def create_service():
         ), 400
 
     try:
-        token = Token(token=uuid4())
+        token = Token(token=uuid4(), type='client')
         db.session.add(token)
         db.session.flush()
 

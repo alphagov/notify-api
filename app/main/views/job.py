@@ -7,9 +7,11 @@ from app.main.validators import valid_job_submission
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import desc
+from app.main.auth.token_auth import token_type_required
 
 
 @main.route('/job/<int:job_id>', methods=['GET'])
+@token_type_required('admin')
 def fetch_job(job_id):
     job = Job.query.filter(Job.id == job_id).first_or_404()
 
@@ -19,6 +21,7 @@ def fetch_job(job_id):
 
 
 @main.route('/service/<int:service_id>/jobs', methods=['GET'])
+@token_type_required('admin')
 def fetch_jobs_by_service(service_id):
     jobs = Job.query.join(Service).filter(
         Service.id == service_id
@@ -30,6 +33,7 @@ def fetch_jobs_by_service(service_id):
 
 
 @main.route('/job', methods=['POST'])
+@token_type_required('admin')
 def create_job():
     job_from_request = get_json_from_request('job')
 

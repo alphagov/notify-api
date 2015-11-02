@@ -7,6 +7,7 @@ from app.main.validators import valid_user_authentication_submission, valid_crea
 from app.main.views import get_json_from_request
 from app.models import User, Service
 from sqlalchemy.exc import IntegrityError
+from app.main.auth.token_auth import token_type_required
 
 
 def check_user_and_service(service_id, email_address):
@@ -25,6 +26,7 @@ def check_user_and_service(service_id, email_address):
 
 
 @main.route('/service/<int:service_id>/remove-user', methods=['POST'])
+@token_type_required('admin')
 def remove_user_from_service(service_id):
     json_request = get_json_from_request('user')
 
@@ -51,6 +53,7 @@ def remove_user_from_service(service_id):
 
 
 @main.route('/service/<int:service_id>/add-user', methods=['POST'])
+@token_type_required('admin')
 def add_user_to_service(service_id):
     json_request = get_json_from_request('user')
 
@@ -77,6 +80,7 @@ def add_user_to_service(service_id):
 
 
 @main.route('/users/<int:user_id>', methods=['GET'])
+@token_type_required('admin')
 def fetch_user_by_id(user_id):
     user = User.query.filter(
         User.id == user_id
@@ -91,6 +95,7 @@ def fetch_user_by_id(user_id):
 
 
 @main.route('/users', methods=['GET'])
+@token_type_required('admin')
 def fetch_user_by_email():
     email_address = request.args.get('email_address')
     if email_address:
@@ -109,6 +114,7 @@ def fetch_user_by_email():
 
 
 @main.route('/users', methods=['POST'])
+@token_type_required('admin')
 def create_user():
     user_creation_request = get_json_from_request('user')
     validation_result, validation_errors = valid_create_user_submission(user_creation_request)
@@ -144,6 +150,7 @@ def create_user():
 
 
 @main.route('/user/<int:user_id>/activate', methods=['POST'])
+@token_type_required('admin')
 def activate_user(user_id):
     user = User.query.get(user_id)
 
@@ -164,6 +171,7 @@ def activate_user(user_id):
 
 
 @main.route('/users/auth', methods=['POST'])
+@token_type_required('admin')
 def auth_user():
     user_authentication_request = get_json_from_request('userAuthentication')
 

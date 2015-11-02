@@ -53,7 +53,7 @@ def notify_db_session(request):
 
     # Set up dummy org, with a service and a job
     org = Organisation(id=1234, name="org test")
-    token = Token(id=1234, token="1234")
+    token = Token(id=1234, token="1234", type='admin')
     service = Service(
         id=1234,
         name="service test",

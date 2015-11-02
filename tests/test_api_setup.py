@@ -40,7 +40,7 @@ def test_valid_bearer_token_is_required(notify_api, notify_db, notify_config):
 
 
 def test_allow_a_valid_token(notify_api, notify_db, notify_db_session):
-    token = Token(id=123, token="token")
+    token = Token(id=123, token="token", type='admin')
     db.session.add(token)
     db.session.commit()
     notify_api.config['AUTH_REQUIRED'] = True

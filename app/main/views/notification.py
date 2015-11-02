@@ -7,9 +7,11 @@ from app.main.views import get_json_from_request
 from app.models import Service, Job, Notification, Token, Usage
 from datetime import datetime
 from sqlalchemy import desc
+from app.main.auth.token_auth import token_type_required
 
 
 @main.route('/notifications', methods=['GET'])
+@token_type_required('client', 'admin')
 def fetch_notifications():
     incoming_token = get_token_from_headers(request.headers)
     service = Service.query.filter(Service.token == incoming_token).first_or_404()
@@ -22,6 +24,7 @@ def fetch_notifications():
 
 
 @main.route('/job/<int:job_id>/notifications', methods=['GET'])
+@token_type_required('client', 'admin')
 def fetch_notifications_by_job(job_id):
     notifications = Notification.query.join(Job).filter(
         Job.id == job_id
@@ -32,6 +35,7 @@ def fetch_notifications_by_job(job_id):
 
 
 @main.route('/sms/notification', methods=['POST'])
+@token_type_required('client', 'admin')
 def create_sms_notification():
     if not current_app.config['SMS_ENABLED']:
         return jsonify(error="SMS is unavailable"), 503
