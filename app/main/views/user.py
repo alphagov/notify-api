@@ -52,7 +52,6 @@ def remove_user_from_service(service_id):
 
 @main.route('/service/<int:service_id>/add-user', methods=['POST'])
 def add_user_to_service(service_id):
-
     json_request = get_json_from_request('user')
 
     validation_result, validation_errors = valid_email_address(json_request)
@@ -142,6 +141,26 @@ def create_user():
         print(e.orig)
         db.session.rollback()
         abort(400, "failed to create user")
+
+
+@main.route('/user/<int:user_id>/activate', methods=['POST'])
+def activate_user(user_id):
+    user = User.query.get(user_id)
+
+    if user is None:
+        return jsonify(authorization=False), 404
+    else:
+        user.logged_in_at = datetime.utcnow()
+        user.failed_login_count = 0
+        user.active = True
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return jsonify(users=user.serialize()), 200
+        except IntegrityError as e:
+            print(e.orig)
+            db.session.rollback()
+            abort(400, "failed to activate user")
 
 
 @main.route('/users/auth', methods=['POST'])
