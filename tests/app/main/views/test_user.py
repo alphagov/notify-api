@@ -5,7 +5,11 @@ from datetime import datetime
 
 
 def test_should_fetch_users_for_a_service(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().get('/service/1234/users')
+    response = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
@@ -34,7 +38,11 @@ def test_should_fetch_all_users_for_a_service(notify_api, notify_db, notify_db_s
     db.session.add(service)
     db.session.commit()
 
-    response = notify_api.test_client().get('/service/1234/users')
+    response = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
@@ -67,10 +75,17 @@ def test_should_add_user_to_service(notify_api, notify_db, notify_db_session):
                 }
             }
         ),
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         content_type='application/json')
     assert response.status_code == 200
 
-    fetch_response = notify_api.test_client().get('/service/1234/users')
+    fetch_response = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
     assert 'users' in data
@@ -96,6 +111,9 @@ def test_cannot_add_user_twice_to_a_service(notify_api, notify_db, notify_db_ses
 
     response_1 = notify_api.test_client().post(
         '/service/1234/add-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -108,6 +126,9 @@ def test_cannot_add_user_twice_to_a_service(notify_api, notify_db, notify_db_ses
 
     response_2 = notify_api.test_client().post(
         '/service/1234/add-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -118,7 +139,11 @@ def test_cannot_add_user_twice_to_a_service(notify_api, notify_db, notify_db_ses
         content_type='application/json')
     assert response_2.status_code == 200
 
-    fetch_response = notify_api.test_client().get('/service/1234/users')
+    fetch_response = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
     assert 'users' in data
@@ -144,6 +169,9 @@ def test_user_cannot_be_added_to_non_existant_service(notify_api, notify_db, not
 
     response = notify_api.test_client().post(
         '/service/5656/add-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -158,6 +186,9 @@ def test_user_cannot_be_added_to_non_existant_service(notify_api, notify_db, not
 def test_user_cannot_be_add_non_existant_user_to_service(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/service/1234/add-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -186,6 +217,9 @@ def test_should_remove_user_from_a_service(notify_api, notify_db, notify_db_sess
 
     post_1 = notify_api.test_client().post(
         '/service/1234/add-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -196,13 +230,20 @@ def test_should_remove_user_from_a_service(notify_api, notify_db, notify_db_sess
         content_type='application/json')
     assert post_1.status_code == 200
 
-    fetch_1 = notify_api.test_client().get('/service/1234/users')
+    fetch_1 = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data_1 = json.loads(fetch_1.get_data())
     assert fetch_1.status_code == 200
     assert len(data_1['users']) == 2
 
     post_2 = notify_api.test_client().post(
         '/service/1234/remove-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -213,7 +254,11 @@ def test_should_remove_user_from_a_service(notify_api, notify_db, notify_db_sess
         content_type='application/json')
     assert post_2.status_code == 200
 
-    fetch_2 = notify_api.test_client().get('/service/1234/users')
+    fetch_2 = notify_api.test_client().get(
+        '/service/1234/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data_2 = json.loads(fetch_2.get_data())
     assert fetch_2.status_code == 200
     assert 'users' in data_2
@@ -238,6 +283,9 @@ def test_user_cannot_be_removed_from_a_non_existent_service(notify_api, notify_d
 
     response = notify_api.test_client().post(
         '/service/5656/remove-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -252,6 +300,9 @@ def test_user_cannot_be_removed_from_a_non_existent_service(notify_api, notify_d
 def test_user_cannot_be_remove_non_existent_user_from_a_service(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/service/1234/remove-user',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -264,12 +315,20 @@ def test_user_cannot_be_remove_non_existent_user_from_a_service(notify_api, noti
 
 
 def test_should_by_404_for_non_numeric_user_id(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().get('/users/invalid')
+    response = notify_api.test_client().get(
+        '/users/invalid',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     assert response.status_code == 404
 
 
 def test_should_fetch_user_if_can_find_by_id(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().get('/users/1234')
+    response = notify_api.test_client().get(
+        '/users/1234',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
@@ -277,18 +336,25 @@ def test_should_fetch_user_if_can_find_by_id(notify_api, notify_db, notify_db_se
     assert data['users']['emailAddress'] == 'test-user@example.org'
     assert not data['users']['locked']
     assert data['users']['active']
-    assert data['users']['failedLoginCount'] == 0
 
 
 def test_should_reject_fetch_user_request_with_no_email(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().get('/users')
+    response = notify_api.test_client().get(
+        '/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 400
     assert data['error'] == 'No email address provided'
 
 
 def test_should_fetch_user_if_can_find_by_email(notify_api, notify_db, notify_db_session):
-    response = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    response = notify_api.test_client().get(
+        '/users?email_address=test-user@example.org',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert 'users' in data
@@ -302,6 +368,9 @@ def test_should_fetch_user_if_can_find_by_email(notify_api, notify_db, notify_db
 def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -319,6 +388,9 @@ def test_should_only_allow_valid_auth_requests(notify_api, notify_db, notify_db_
 def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -340,6 +412,9 @@ def test_should_be_able_to_auth_user(notify_api, notify_db, notify_db_session):
 def test_should_404_if_user_not_found_on_auth(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -355,6 +430,9 @@ def test_should_404_if_user_not_found_on_auth(notify_api, notify_db, notify_db_s
 def test_should_increment_failed_login_count(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -366,7 +444,11 @@ def test_should_increment_failed_login_count(notify_api, notify_db, notify_db_se
         content_type='application/json')
     assert response.status_code == 403
 
-    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    fetch_response = notify_api.test_client().get(
+        '/users?email_address=test-user@example.org',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
     assert data['users']['failedLoginCount'] == 1
@@ -375,6 +457,9 @@ def test_should_increment_failed_login_count(notify_api, notify_db, notify_db_se
 def test_should_reset_failed_login_count_on_success(notify_api, notify_db, notify_db_session):
     response_1 = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -386,13 +471,21 @@ def test_should_reset_failed_login_count_on_success(notify_api, notify_db, notif
         content_type='application/json')
     assert response_1.status_code == 403
 
-    fetch_response_1 = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    fetch_response_1 = notify_api.test_client().get(
+        '/users?email_address=test-user@example.org',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+
     data = json.loads(fetch_response_1.get_data())
     assert fetch_response_1.status_code == 200
     assert data['users']['failedLoginCount'] == 1
 
     response_2 = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -404,7 +497,11 @@ def test_should_reset_failed_login_count_on_success(notify_api, notify_db, notif
         content_type='application/json')
     assert response_2.status_code == 200
 
-    fetch_response_2 = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    fetch_response_2 = notify_api.test_client().get(
+        '/users?email_address=test-user@example.org',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response_2.get_data())
     assert fetch_response_2.status_code == 200
     assert data['users']['failedLoginCount'] == 0
@@ -414,6 +511,9 @@ def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_d
     for i in range(0, notify_api.config['MAX_FAILED_LOGIN_COUNT'] + 1):
         response = notify_api.test_client().post(
             '/users/auth',
+            headers={
+                'Authorization': 'Bearer 1234'
+            },
             data=json.dumps(
                 {
                     'userAuthentication': {
@@ -425,7 +525,11 @@ def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_d
             content_type='application/json')
         assert response.status_code == 403
 
-    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.org')
+    fetch_response = notify_api.test_client().get(
+        '/users?email_address=test-user@example.org',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
     assert data['users']['failedLoginCount'] == 6
@@ -433,6 +537,9 @@ def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_d
 
     response_2 = notify_api.test_client().post(
         '/users/auth',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'userAuthentication': {
@@ -448,6 +555,9 @@ def test_should_prevent_login_when_too_many_failed_attempts(notify_api, notify_d
 def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -460,7 +570,11 @@ def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session
         content_type='application/json')
     assert response.status_code == 201
 
-    fetch_response = notify_api.test_client().get('/users?email_address=test-user@example.gov.uk')
+    fetch_response = notify_api.test_client().get(
+        '/users?email_address=test-user@example.gov.uk',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(fetch_response.get_data())
     assert fetch_response.status_code == 200
     assert not data['users']['active']
@@ -469,6 +583,9 @@ def test_should_be_able_to_create_users(notify_api, notify_db, notify_db_session
 def test_should_reject_invalid_user_request(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {
@@ -487,6 +604,9 @@ def test_should_reject_invalid_user_request(notify_api, notify_db, notify_db_ses
 def test_should_reject_non_gov_emailst(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().post(
         '/users',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         data=json.dumps(
             {
                 'user': {

@@ -4,7 +4,7 @@ from app.models import Job, Service, Token, User, Usage
 from app import db
 
 
-def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_config):
+def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         data=json.dumps({
@@ -13,6 +13,9 @@ def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_config)
                 "message": ""
             }
         }),
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         content_type='application/json'
     )
     data = json.loads(response.get_data())
@@ -25,13 +28,16 @@ def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_config)
     assert data['error_details'][1]['message'] == "'someone' does not match '^\\\+44[\\\d]{10}$'"
 
 
-def test_should_reject_missing_data_on_sms_request(notify_api, notify_config):
+def test_should_reject_missing_data_on_sms_request(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().post(
         '/sms/notification',
         data=json.dumps({
             "notification": {
             }
         }),
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         content_type='application/json'
     )
     data = json.loads(response.get_data())
@@ -42,7 +48,7 @@ def test_should_reject_missing_data_on_sms_request(notify_api, notify_config):
                                                     "'message' is a required property"]  # noqa
 
 
-def test_should_reject_request_if_kill_switch_enabled(notify_api, notify_config):
+def test_should_reject_request_if_kill_switch_enabled(notify_api, notify_db, notify_db_session, notify_config):
     notify_api.config['SMS_ENABLED'] = False
     response = notify_api.test_client().post(
         '/sms/notification',
@@ -52,6 +58,9 @@ def test_should_reject_request_if_kill_switch_enabled(notify_api, notify_config)
                 "message": "hello world"
             }
         }),
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
         content_type='application/json'
     )
     data = json.loads(response.get_data())
@@ -75,8 +84,9 @@ def test_should_reject_notification_if_invalid_token(notify_api, notify_db, noti
     )
 
     data = json.loads(response.get_data())
-    assert response.status_code == 400
-    assert data['error'] == 'No service associated with these credentials'
+    assert response.status_code == 403
+    print(data['error'])
+    assert data['error'] == 'Forbidden, invalid bearer token provided'
 
 
 def test_should_reject_notification_if_no_token(notify_api, notify_db, notify_db_session, notify_config):
@@ -246,7 +256,12 @@ def test_records_new_usage(notify_api, notify_db, notify_db_session, notify_conf
     )
     assert response.status_code == 201
 
-    usage_response = notify_api.test_client().get('/service/1234/usage')
+    usage_response = notify_api.test_client().get(
+        '/service/1234/usage',
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     data = json.loads(usage_response.get_data())
     assert len(data['usage']) == 1
     assert data['usage'][0]['count'] == 1
@@ -270,7 +285,12 @@ def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_sess
         content_type='application/json'
     )
 
-    usage_response_1 = notify_api.test_client().get('/service/1234/usage')
+    usage_response_1 = notify_api.test_client().get(
+        '/service/1234/usage',
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     data = json.loads(usage_response_1.get_data())
     assert len(data['usage']) == 1
     assert data['usage'][0]['count'] == 1
@@ -289,7 +309,12 @@ def test_records_new_usage_on_the_same_day(notify_api, notify_db, notify_db_sess
         content_type='application/json'
     )
 
-    usage_response_2 = notify_api.test_client().get('/service/1234/usage')
+    usage_response_2 = notify_api.test_client().get(
+        '/service/1234/usage',
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     data = json.loads(usage_response_2.get_data())
     assert len(data['usage']) == 1
     assert data['usage'][0]['count'] == 2
@@ -339,7 +364,7 @@ def test_should_reject_notification_if_over_limit(notify_api, notify_db, notify_
 
 def test_should_permit_allowed_numbers_on_restricted_service(notify_api, notify_db, notify_db_session, notify_config):
     user = User.query.get(1234)
-    token = Token(id=1000, token="restricted")
+    token = Token(id=1000, token="restricted", type='admin')
     service = Service(
         id=1000,
         name='restricted',
@@ -379,7 +404,7 @@ def test_should_permit_allowed_numbers_on_restricted_service(notify_api, notify_
 
 def test_should_limit_users_on_restricted_service(notify_api, notify_db, notify_db_session, notify_config):
     user = User.query.get(1234)
-    token = Token(id=1000, token="restricted")
+    token = Token(id=1000, token="restricted", type='admin')
     service = Service(
         id=1000,
         name='restricted',
@@ -429,7 +454,12 @@ def test_should_have_correct_service_id_on_new_job(notify_api, notify_db, notify
     data = json.loads(response.get_data())
     assert response.status_code == 201
 
-    job_response = notify_api.test_client().get('/job/{}'.format(data['notification']['jobId']))
+    job_response = notify_api.test_client().get(
+        '/job/{}'.format(data['notification']['jobId']),
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     job_data = json.loads(job_response.get_data())
     assert 'job' in job_data
     assert job_data['job']['serviceId'] == 1234
@@ -474,7 +504,12 @@ def test_should_have_correct_service_id_on_existing_job(notify_api, notify_db, n
     data = json.loads(response.get_data())
     assert response.status_code == 201
 
-    job_response = notify_api.test_client().get('/job/{}'.format(data['notification']['jobId']))
+    job_response = notify_api.test_client().get(
+        '/job/{}'.format(data['notification']['jobId']),
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     job_data = json.loads(job_response.get_data())
     assert 'job' in job_data
     assert job_data['job']['serviceId'] == 1234
@@ -509,7 +544,11 @@ def test_should_create_job_if_no_job_id_supplied(notify_api, notify_db, notify_d
 
 
 def test_should_fetch_notification_by_job_id(notify_api, notify_db, notify_db_session, notify_config):
-    response = notify_api.test_client().get("/job/1234/notifications")
+    response = notify_api.test_client().get(
+        "/job/1234/notifications",
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert len(data['notifications']) == 1
@@ -535,7 +574,12 @@ def test_should_fetch_all_notifications_by_job_id(notify_api, notify_db, notify_
     )
     assert response.status_code == 201
 
-    response = notify_api.test_client().get("/job/1234/notifications")
+    response = notify_api.test_client().get(
+        "/job/1234/notifications",
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert len(data['notifications']) == 2
