@@ -76,7 +76,7 @@ def create_sms_notification():
         if not notification_request['to'] in [user.mobile_number for user in service.users]:
             abort(400, "Restricted service: cannot send notification to this number")
 
-    usage = Usage.query.filter(Usage.day == datetime.utcnow().date()).first()
+    usage = Usage.query.filter(Usage.day == datetime.utcnow().date(), Usage.service_id == service.id).first()
     if usage:
         usage.count += 1
     else:
