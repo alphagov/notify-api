@@ -152,3 +152,41 @@ def create_service():
         print(e.orig)
         db.session.rollback()
         abort(400, "failed to create service")
+
+
+@main.route('/service/<int:service_id>/unrestrict', methods=['POST'])
+@token_type_required('admin')
+def unrestrict_service(service_id):
+    service = Service.query.get(service_id)
+
+    if not service:
+        abort(404, "Service not found")
+
+    service.restricted = False
+    try:
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(service=service.serialize())
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to activate service")
+
+
+@main.route('/service/<int:service_id>/restrict', methods=['POST'])
+@token_type_required('admin')
+def restrict_service(service_id):
+    service = Service.query.get(service_id)
+
+    if not service:
+        abort(404, "Service not found")
+
+    service.restricted = True
+    try:
+        db.session.add(service)
+        db.session.commit()
+        return jsonify(service=service.serialize())
+    except IntegrityError as e:
+        print(e.orig)
+        db.session.rollback()
+        abort(400, "failed to activate service")
