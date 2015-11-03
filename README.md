@@ -1,6 +1,6 @@
 [![Build Status](https://api.travis-ci.org/alphagov/notify-api.svg?branch=master)](https://api.travis-ci.org/alphagov/notify-api.svg?branch=master)
 
-# GOVUK Notify API Client [ALPHA]
+# GOVUK Notify API [ALPHA]
 
 API for the alpha for the GOVUK Notify platform.
 
@@ -97,9 +97,9 @@ It is recommended the API is accessed via the [client library](https://github.co
 
 The expectation is that services will be configured via the web interface. All API endpoints relating to creating and maintaing users/services and so on will be made private in the future and should not be considered supported.
 
-#### Sending a notification.
+### Requests
 
-To send a notification you require the credentials for the service you want to send a notification on behalf of.
+To send a notification you require the credentials for the service you want to send a notification on behalf of. These can be determined through the administration app.
 
 A curl example call is constructed as follows:
 
@@ -108,7 +108,12 @@ A curl example call is constructed as follows:
         -H"Content-type: application/json"  
         -X POST 
         https://api-url/sms/notification 
-        -d '{"notification":{"to":"mobile-number", "message":"This is the message"}}'
+        -d '{
+                "notification": {
+                    "to":"mobile-number", 
+                    "message":"This is the message"
+                }
+            }'
     
 Where:
 
@@ -122,9 +127,74 @@ Where:
 * "message" is the text to send
     * Must be between 1 and 160 characters in length
     
-#### Responses
 
-Responses will have a JSON body describing the error.
+With optional fields:
+    
+    curl 
+        -H"Authorization: Bearer service-api-token" 
+        -H"Content-type: application/json"  
+        -X POST 
+        https://api-url/sms/notification 
+        -d '{
+                "notification": {
+                    "to":"mobile-number", 
+                    "message":"This is the message", 
+                    "jobId":100, 
+                    "description":"Description of the job"
+                }
+            }'
+    
+    
+* `jobId` is used to group notifications together. A job will be created if no job ID is supplied. If a job id is supplied notifications will be associated with that job.
+If no job exists with that ID is is an error.
+
+* `description` is used to give a meaningful name to the job relating to this notification.
+
+    
+### Responses
+
+#### Success
+
+    {
+        "notification": {
+            "createdAt": "2015-11-03T09:37:27.414363Z",
+            "id": 100,
+            "jobId": 65,
+            "message": "This is the message",
+            "method": "sms",
+            "status": "created",
+            "to": "+449999999999"
+        }
+    }
+   
+#### Errors
+   
+Error will be provided as JSON.
+   
+All errors have an `error` element providing a textual description of the error.
+Additionally error responses may provide an `error_details` array containing per field errors, in the case of validation errors. 
+   
+#####Validation error
+    
+    {
+        "error": "Invalid JSON",
+        "error_details": [{
+                "key": "description",
+                "message": "'' is too short"
+        }]
+    }
+
+* `error` describes the overall error condition
+* `error_details` provides per field validation errors
+
+#####Authentication error
+
+    {
+        "error": "Forbidden, invalid bearer token provided"
+    }
+    
+* `error` describes the overall error condition
+
 
 ##### Codes
 

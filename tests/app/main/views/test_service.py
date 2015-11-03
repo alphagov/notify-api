@@ -41,6 +41,42 @@ def test_should_be_able_to_activate_service(notify_api, notify_db, notify_db_ses
     assert data['service']['active']
 
 
+def test_should_be_able_to_restrict_service(notify_api, notify_db, notify_db_session):
+    response_1 = notify_api.test_client().get(
+        '/user/1234/service/1234',
+        headers={
+            'Authorization': 'Bearer 1234'
+        }
+    )
+    data = json.loads(response_1.get_data())
+    assert not data['service']['restricted']
+    response_2 = notify_api.test_client().post(
+        '/service/1234/restrict',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response_2.get_data())
+    assert data['service']['restricted']
+
+
+def test_should_be_able_to_unrestrict_service(notify_api, notify_db, notify_db_session):
+    response_1 = notify_api.test_client().post(
+        '/service/1234/restrict',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response_1.get_data())
+    assert data['service']['restricted']
+
+    response_2 = notify_api.test_client().post(
+        '/service/1234/unrestrict',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response_2.get_data())
+    assert not data['service']['restricted']
+
+
 def test_should_be_able_to_get_service_by_id_and_user_id(notify_api, notify_db, notify_db_session):
     response = notify_api.test_client().get(
         '/user/1234/service/1234',
