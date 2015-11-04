@@ -4,7 +4,7 @@ from sms_jobs import send_sms, fetch_sms_status
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('interval', minutes=1)
+@sched.scheduled_job('interval', minutes=10)
 def send_sms_schedule():
     print("Running sending job Sending")
     sched.add_job(func=send_sms, max_instances=1, id="sms_sending_job")
