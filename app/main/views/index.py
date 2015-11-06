@@ -117,6 +117,14 @@ def index():
                 _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
             ),
             "method": "GET"
+        },
+        "notification.create_email": {
+            "url": url_for(
+                '.create_email_notification',
+                _external=True,
+                _scheme=current_app.config.get('NOTIFY_HTTP_PROTO', 'http')
+            ),
+            "method": "POST"
         }
     }
     ), 200

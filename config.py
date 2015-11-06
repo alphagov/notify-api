@@ -5,6 +5,7 @@ class Config(object):
     AUTH_REQUIRED = True
     API_TOKEN = '$2a$10$JGHuLQA..8GKdKlHoKxa6exqRy0/awKAj7E9TCbVXteADL/Xg5i8C'
     SMS_ENABLED = True
+    EMAIL_ENABLED = True
     SQLALCHEMY_COMMIT_ON_TEARDOWN = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/notify'
@@ -15,6 +16,9 @@ class Config(object):
 
     PLIVO_ACCOUNT_SID = 'ACCOUNT_ID'
     PLIVO_AUTH_TOKEN = 'PLIVO_AUTH_TOKEN'
+
+    SENDGRID_USERNAME = 'SENDGRID_USERNAME'
+    SENDGRID_API_KEY = 'SENDGRID_API_KEY'
 
     FROM_NUMBER = '1234'
 

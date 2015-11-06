@@ -5,10 +5,11 @@ from flask._compat import string_types
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from app.connectors.sms_wrapper import SmsWrapper
+from app.connectors.email_wrapper import EmailWrapper
 from config import configs
 
-
 sms_wrapper = SmsWrapper()
+email_wrapper = EmailWrapper()
 db = SQLAlchemy()
 
 
@@ -21,6 +22,7 @@ def create_app(config_name):
     db.init_app(application)
     init_app(application)
     sms_wrapper.init_app(application)
+    email_wrapper.init_app(application)
 
     from .main import main as main_blueprint
     application.register_blueprint(main_blueprint)

@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import json
 from app.models import Job, Service, Token, User, Usage
 from app import db
+import pytest
 
 
 def test_should_reject_incorrectly_formed_sms_request(notify_api, notify_db, notify_db_session, notify_config):
@@ -585,3 +586,30 @@ def test_should_fetch_all_notifications_by_job_id(notify_api, notify_db, notify_
     assert len(data['notifications']) == 2
     assert data['notifications'][0]['message'] == 'hello world'
     assert data['notifications'][1]['message'] == 'this is a message'
+
+
+def test_should_allow_correctly_formed_email_request(notify_api, notify_db, notify_db_session, notify_config):
+    response = notify_api.test_client().post(
+        '/email/notification',
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        data=json.dumps({
+            "notification": {
+                "to": "customer@test.com",
+                "message": "This is an email message"
+            }
+        }),
+        content_type='application/json'
+    )
+    data = json.loads(response.get_data())
+
+    # pytest.set_trace()
+
+    assert response.status_code == 201
+    assert 'notification' in data
+    assert data['notification']['message'] == "This is an email message"
+    assert data['notification']['to'] == "customer@test.com"
+    assert data['notification']['method'] == "email"
+    assert data['notification']['status'] == "created"
+    assert data['notification']['jobId']
