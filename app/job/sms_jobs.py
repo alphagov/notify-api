@@ -11,8 +11,9 @@ def send_sms():
     print("Processing SMS messages")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
-        notifications = Notification.query\
-            .filter(Notification.status == 'created')\
+        notifications = Notification.query \
+            .filter(Notification.status == 'created') \
+            .filter(Notification.method == 'sms') \
             .order_by(asc(Notification.created_at)).all()
         for notification in notifications:
             print("Processing {}".format(notification.id))
@@ -36,8 +37,8 @@ def fetch_sms_status():
     print("Processing SMS status")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
-        notifications = Notification.query\
-            .filter(Notification.status == 'sent')\
+        notifications = Notification.query \
+            .filter(Notification.status == 'sent') \
             .order_by(asc(Notification.sent_at)).all()
         for notification in notifications:
             try:

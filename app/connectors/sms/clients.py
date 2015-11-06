@@ -1,6 +1,8 @@
 from twilio.rest import TwilioRestClient
 import plivo
 from twilio import TwilioRestException
+import sendgrid
+from sendgrid import SendGridError, SendGridClientError, SendGridServerError
 
 
 class ClientException(Exception):
@@ -17,6 +19,69 @@ class SmsClient:
 
     def log(self, message_id):
         pass
+
+
+class SendGridClient:
+    def __init__(self, app):
+        (sg_user_id, sg_api_key) = self.__setup(app)
+        self.client = sendgrid.SendGridClient(sg_user_id, sg_api_key)
+        self.identifier = 'sendgrid'
+
+    def __setup(self, app):
+        sg_user_id = app.config.get('SENDGRID_USERNAME')
+        sg_api_key = app.config.get('SENDGRID_API_KEY')
+
+        if not all([sg_user_id, sg_api_key]):
+            raise RuntimeError("SendGrid incorrectly configured")
+
+        return sg_user_id, sg_api_key
+
+    def send(self, to, sender, subject, body, message_id):
+
+        sender = "notify@gov.uk"
+        subject = "Email from notify@gov.uk"
+
+        try:
+            print("Sending email with SendGrid")
+            message = sendgrid.Mail()
+            message.add_to(to)
+            message.set_from(sender)
+            message.set_subject(subject)
+            message.set_text(body)
+
+            status, msg = self.client.send(message)
+
+            print("SendGrid status: ")
+            print(status)
+            print("SendGrid msg: ")
+            print(msg)
+
+            self.log(message_id)
+
+            return msg, self.identifier
+
+        except SendGridClientError as e:
+            print(e)
+            raise ClientException(self.Identifier)
+
+        except SendGridError as e:
+            print(e)
+            raise ClientException(self.identifier)
+        except SendGridServerError as e:
+            print(e)
+            raise ClientException(self.identifier)
+
+    def status(self, message_id):
+        response = self.client.messages.get(message_id)
+        if response.status in ('delivered', 'undelivered', 'failed'):
+            return response.status
+        else:
+            print("Message {} status {}".format(message_id, response.status))
+            return None
+        return None
+
+    def log(self, message_id):
+        print("SendGrid has sent {}".format(message_id))
 
 
 class TwilioClient(SmsClient):

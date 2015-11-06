@@ -122,3 +122,66 @@ def os_environ(request):
 @pytest.fixture(autouse=True)
 def no_sms(monkeypatch):
     monkeypatch.delattr("app.connectors.sms.clients.TwilioClient.send")
+
+
+@pytest.fixture(autouse=True)
+def no_email(monkeypatch):
+    monkeypatch.delattr("app.connectors.sms.clients.SendGridClient.send")
+
+
+@pytest.fixture(scope='function')
+def notify_email_db_session(request):
+    meta = MetaData(bind=db.engine, reflect=True)
+
+    # Set up dummy org, with a service and a job
+    org = Organisation(id=1234, name="org test for email")
+    token = Token(id=1234, token="1234", type='admin')
+    service = Service(
+        id=1234,
+        name="email service test",
+        created_at=datetime.utcnow(),
+        token=token,
+        active=True,
+        restricted=False,
+        limit=100
+    )
+    job = Job(id=1234, name="email job test", created_at=datetime.utcnow(), service=service)
+    notification = Notification(
+        id=1234,
+        to="test@test.com",
+        message="this is an email message",
+        job=job,
+        status="created",
+        method="email",
+        created_at=datetime.utcnow()
+    )
+
+    # Setup a dummy user for tests
+    user = User(
+        id=1234,
+        email_address="test-user@example.org",
+        mobile_number="+449999234234",
+        password=generate_password_hash('valid-password'),
+        active=True,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+        password_changed_at=datetime.utcnow(),
+        role='admin'
+    )
+
+    service.users.append(user)
+
+    db.session.add(token)
+    db.session.add(org)
+    db.session.add(service)
+    db.session.add(notification)
+    db.session.add(job)
+    db.session.add(user)
+    db.session.commit()
+
+    def teardown():
+        db.session.remove()
+        for tbl in reversed(meta.sorted_tables):
+            db.engine.execute(tbl.delete())
+
+    request.addfinalizer(teardown)

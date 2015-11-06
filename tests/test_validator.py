@@ -1,11 +1,49 @@
-from app.main.validators import valid_sms_notification, valid_job_submission, \
+from app.main.validators import valid_sms_notification, valid_email_notification, valid_job_submission, \
     valid_service_submission, valid_user_authentication_submission, valid_create_user_submission, valid_email_address
 import pytest
+
+email = {
+    "to": "customer@test.com",
+    "from": "admin@test.gov.uk",
+    "subject": "test email subject",
+    "message": "This is an email message"
+}
 
 message = {
     "to": "+447827992607",
     "message": "This is a message"
 }
+
+
+@pytest.yield_fixture
+def email_test_cases():
+    cases = [
+        (
+            {
+                "to": "customer@test.com",
+                "from": "admin@test.gov.uk",
+                "subject": "test email subject",
+                "message": "This is an email message"
+            },
+            (True, [])
+        ),
+        (
+            {
+                "to": "customer@test.com",
+                "from": "admin@test.gov.uk",
+                "subject": "test email subject",
+                "message": "This is an email message",
+                "jobId": 1234
+            },
+            (True, [])
+        )
+    ]
+    yield cases
+
+
+def test_should_validate_email_messages(email_test_cases):
+    for case, result in email_test_cases:
+        assert valid_email_notification(case) == result
 
 
 @pytest.yield_fixture

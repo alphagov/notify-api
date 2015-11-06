@@ -6,6 +6,7 @@ import os
 JSON_SCHEMAS_PATH = './json_schemas'
 SCHEMA_NAMES = [
     'sms',
+    'email',
     'job',
     'service',
     'user_authentication',
@@ -39,6 +40,10 @@ def get_validator(schema_name):
 
 def valid_sms_notification(submitted_json):
     return __validate_against_schema('sms', submitted_json)
+
+
+def valid_email_notification(submitted_json):
+    return __validate_against_schema('email', submitted_json)
 
 
 def valid_job_submission(submitted_json):

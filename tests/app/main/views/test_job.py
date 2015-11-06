@@ -1,6 +1,46 @@
 from flask import json
 
 
+def test_should_be_able_to_get_email_job_by_id(notify_api, notify_db, notify_email_db_session, notify_config):
+    response = notify_api.test_client().get(
+        '/job/1234',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert data['job']['id'] == 1234
+    assert data['job']['name'] == 'email job test'
+
+
+def test_should_return_all_email_jobs_for_a_service(notify_api, notify_db, notify_email_db_session, notify_config):
+    create_response = notify_api.test_client().post(
+        '/job',
+        data=json.dumps(
+            {
+                'job': {
+                    'serviceId': 1234,
+                    'name': 'my job'
+                }
+            }
+        ),
+        headers={
+            'Authorization': 'Bearer 1234'
+        },
+        content_type='application/json')
+    assert create_response.status_code == 201
+    response = notify_api.test_client().get(
+        '/service/1234/jobs',
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response.get_data())
+    assert response.status_code == 200
+    assert len(data['jobs']) == 2
+    assert data['jobs'][0]['name'] == 'my job'
+    assert data['jobs'][1]['name'] == 'email job test'
+
+
 def test_should_be_able_to_get_job_by_id(notify_api, notify_db, notify_db_session, notify_config):
     response = notify_api.test_client().get(
         '/job/1234',
