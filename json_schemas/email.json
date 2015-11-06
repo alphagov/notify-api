@@ -1,0 +1,41 @@
+{
+  "id": "EMAIL notification creation",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "to": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 5,
+      "pattern": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    },
+    "from": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 5,
+      "pattern": "^[^@^\\s]+@[^@^\\.^\\s]+(\\.[^@^\\.^\\s]*)*.gov.uk"
+    },
+    "subject": {
+      "type": "string",
+      "maxLength": 130
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 1900,
+      "minLength": 1
+    },
+    "jobId": {
+      "type": "integer"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 160,
+      "minLength": 1
+    }
+  },
+  "required": [
+    "to",
+    "message"
+  ]
+}
