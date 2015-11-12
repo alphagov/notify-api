@@ -11,28 +11,31 @@ def send_email():
     print("Processing Email messages")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
-        notifications = Notification.query \
-            .filter(Notification.status == 'created') \
-            .filter(Notification.method == 'email') \
-            .order_by(asc(Notification.created_at)).all()
-        for notification in notifications:
-            print("Processing {}".format(notification.id))
-            print("To {}".format(notification.to))
-            try:
-                (message_id, sender) = email_wrapper.send(notification.to, notification.sender, "subject placeholder",
-                                                          notification.message, notification.id)
-                notification.status = 'sent'
-                notification.sent_at = datetime.utcnow()
-                notification.sender_id = message_id
-                notification.sender = sender
-                db.session.add(notification)
-                db.session.commit()
-            except ClientException as e:
-                print(e)
-                notification.status = 'error'
-                notification.sender = e.sender
-                db.session.add(notification)
-                db.session.commit()
+        try:
+            notifications = Notification.query\
+                .filter(Notification.status == 'created') \
+                .filter(Notification.method == 'email')\
+                .order_by(asc(Notification.created_at)).all()
+            for notification in notifications:
+                try:
+                    (message_id, sender) = email_wrapper.send(notification.to,
+                                                              notification.sender,
+                                                              "subject placeholder",
+                                                              notification.message, notification.id)
+                    notification.status = 'sent'
+                    notification.sent_at = datetime.utcnow()
+                    notification.sender_id = message_id
+                    notification.sender = sender
+                    db.session.add(notification)
+                    db.session.commit()
+                except ClientException as e:
+                    print(e)
+                    notification.status = 'error'
+                    notification.sender = e.sender
+                    db.session.add(notification)
+                    db.session.commit()
+        except Exception as e:
+            print(e)
 
 
 def fetch_email_status():
