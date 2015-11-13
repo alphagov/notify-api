@@ -16,8 +16,11 @@ def send_email():
                 .filter(Notification.status == 'created') \
                 .filter(Notification.method == 'email')\
                 .order_by(asc(Notification.created_at)).all()
+
             for notification in notifications:
                 try:
+                    # sendMessagesToQueue('email', json.dumps(notification.serialize()))
+
                     (message_id, sender) = email_wrapper.send(notification.to,
                                                               notification.sender,
                                                               "subject placeholder",
