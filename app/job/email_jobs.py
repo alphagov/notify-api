@@ -19,8 +19,6 @@ def send_email():
 
             for notification in notifications:
                 try:
-                    # sendMessagesToQueue('email', json.dumps(notification.serialize()))
-
                     (message_id, sender) = email_wrapper.send(notification.to,
                                                               notification.sender,
                                                               "subject placeholder",

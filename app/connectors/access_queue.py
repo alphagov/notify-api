@@ -4,20 +4,20 @@ from flask import json
 queueName = 'gov_uk_notify_queue'
 
 
-def getMessagesFromQueue():
-    q = getQueue(queueName)
+def get_messages_from_queue():
+    q = get_queue(queueName)
     return q.receive_messages(MessageAttributeNames=['type'])
 
 
-def sendMessagesToQueue(type, notifications):
-    q = getQueue(queueName)
+def send_messages_to_queue(type, notifications):
+    q = get_queue(queueName)
 
     for notification in notifications:
-        q.send_message(MessageBody=json.dumps(notification),
+        q.send_message(MessageBody=json.dumps(notification.serialize()),
                        MessageAttributes={'type': {'StringValue': type, 'DataType': 'String'}})
 
+    return True
 
-def getQueue(name):
-    sqs = boto3.resource('sqs')
-    q = sqs.get_queue_by_name(QueueName=name)
-    return q
+
+def get_queue(name):
+    return boto3.resource('sqs').get_queue_by_name(QueueName=name)

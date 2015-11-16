@@ -9,6 +9,7 @@ from app.models import Service, Job, Notification, Token, Usage
 from datetime import datetime
 from sqlalchemy import desc
 from app.main.auth.token_auth import token_type_required
+from app.connectors.access_queue import send_messages_to_queue
 
 
 @main.route('/notifications', methods=['GET'])
@@ -106,6 +107,9 @@ def create_sms_notification():
         db.session.add(usage)
         db.session.add(notification)
         db.session.commit()
+
+        send_messages_to_queue('sms', [notification])
+
     except IntegrityError:
         db.session.rollback()
         abort(400, "Failed to create notification: DB error")
@@ -182,6 +186,9 @@ def create_email_notification():
         db.session.add(usage)
         db.session.add(notification)
         db.session.commit()
+
+        send_messages_to_queue('email', [notification])
+
     except IntegrityError:
         db.session.rollback()
         abort(400, "Failed to create notification: DB error")
