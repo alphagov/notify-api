@@ -1,4 +1,4 @@
-from .sms.clients import SendGridClient
+from app.connectors.sms.clients import SendGridClient
 import random
 
 

@@ -1,4 +1,4 @@
-from .sms.clients import TwilioClient, PlivoClient
+from app.connectors.sms.clients import TwilioClient, PlivoClient
 import random
 
 

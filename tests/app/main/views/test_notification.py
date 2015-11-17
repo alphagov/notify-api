@@ -597,6 +597,8 @@ def test_should_allow_correctly_formed_email_request(notify_api, notify_db, noti
         data=json.dumps({
             "notification": {
                 "to": "customer@test.com",
+                "from": "service@example.gov.uk",
+                "subject": "Email subject",
                 "message": "This is an email message"
             }
         }),

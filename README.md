@@ -114,7 +114,21 @@ A curl example call is constructed as follows:
                     "message":"This is the message"
                 }
             }'
-    
+
+        curl
+        -H"Authorization: Bearer 1"
+        -H"Content-type: application/json"
+        -X POST
+        https://api-url/email/notification
+        -d '{
+                "notification": {
+                    "to":"jo@example.com",
+                     "from":"service@example.gov.uk",
+                     "subject":"Email subject",
+                     "message":"This is the message"
+                }
+            }'
+
 Where:
 
 * "mobile-number" is the mobile phone number to deliver to
