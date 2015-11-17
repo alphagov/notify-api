@@ -20,8 +20,7 @@ notification = Notification(to='mock@example.com',
 
 @moto.mock_sqs
 def test_send_messages_to_queue_adds_message_queue(notify_api):
-    conn = boto3.resource('sqs')
-    q = conn.create_queue(QueueName='gov_uk_notify_queue')
+    q = set_up_mock_queue()
     q.send_message(MessageBody=json.dumps(notification.serialize()),
                    MessageAttributes={'type': {'StringValue': 'email', 'DataType': 'String'}})
 
@@ -32,8 +31,7 @@ def test_send_messages_to_queue_adds_message_queue(notify_api):
 
 @moto.mock_sqs
 def test_send_sms_messages_to_queue_adds_message_queue(notify_api):
-    conn = boto3.resource('sqs')
-    q = conn.create_queue(QueueName='gov_uk_notify_queue')
+    q = set_up_mock_queue()
     sms = Notification(to='+441234512345',
                        message='hello world',
                        job_id=1234)
@@ -47,9 +45,7 @@ def test_send_sms_messages_to_queue_adds_message_queue(notify_api):
 
 @moto.mock_sqs
 def test_send_messages_to_queue_throws_exception_when_notification_is_badly_formed(notify_api):
-    conn = boto3.resource('sqs')
-    q = conn.create_queue(QueueName='gov_uk_notify_queue')
-
+    set_up_mock_queue()
     msg = {'to': 'jane@example.com',
            'from': 'stan@example.gov.uk',
            'subject': 'notification2 subject',
@@ -65,11 +61,16 @@ def test_send_messages_to_queue_throws_exception_when_notification_is_badly_form
 
 @moto.mock_sqs
 def test_get_messages_from_queue_returns_message_queue(notify_api):
-    conn = boto3.resource('sqs')
-    q = conn.create_queue(QueueName='gov_uk_notify_queue')
+    q = set_up_mock_queue()
     q.send_message(MessageBody=json.dumps(notification.serialize()),
                    MessageAttributes={'type': {'StringValue': 'email', 'DataType': 'String'}})
 
     messages = get_messages_from_queue()
     for m in messages:
         assert m.body == json.dumps(notification.serialize())
+
+
+def set_up_mock_queue():
+    conn = boto3.resource('sqs', region_name='eu-west-1')
+    q = conn.create_queue(QueueName='gov_uk_notify_queue')
+    return q
