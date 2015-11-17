@@ -30,9 +30,10 @@ def notify_api(request):
 def notify_db(notify_api, request):
     Migrate(notify_api, db)
     Manager(db, MigrateCommand)
-    ALEMBIC_CONFIG = os.path.join(os.path.dirname(__file__), '../migrations/alembic.ini')
-    config = Config(ALEMBIC_CONFIG)
-    config.set_main_option("script_location", "migrations")
+    BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    ALEMBIC_CONFIG = os.path.join(BASE_DIR, 'migrations')
+    config = Config(ALEMBIC_CONFIG + '/alembic.ini')
+    config.set_main_option("script_location", ALEMBIC_CONFIG)
 
     with notify_api.app_context():
         upgrade(config, 'head')

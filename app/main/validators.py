@@ -3,7 +3,8 @@ from jsonschema.validators import validator_for
 from flask import json
 import os
 
-JSON_SCHEMAS_PATH = './json_schemas'
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+JSON_SCHEMAS_PATH = os.path.join(BASE_DIR, '../json_schemas')
 SCHEMA_NAMES = [
     'sms',
     'email',

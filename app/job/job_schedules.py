@@ -1,6 +1,6 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from .sms_jobs import send_sms, fetch_sms_status
-from .email_jobs import send_email, fetch_email_status
+from app.job.sms_jobs import send_sms, fetch_sms_status
+from app.job.email_jobs import send_email, fetch_email_status
 
 sched = BlockingScheduler()
 
