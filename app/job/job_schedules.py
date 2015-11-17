@@ -23,10 +23,10 @@ def send_email_schedule():
     sched.add_job(func=send_email, max_instances=1, id="email_sending_job")
 
 
-@sched.scheduled_job('interval', minutes=6)
-def send_email_schedule():
-    print("Running status job")
-    sched.add_job(func=fetch_email_status, max_instances=1, id="email_status_checking_job")
+# @sched.scheduled_job('interval', minutes=1)
+# def send_email_schedule():
+#     print("Running status job")
+#     sched.add_job(func=fetch_email_status, max_instances=1, id="email_status_checking_job")
 
 
 sched.start()

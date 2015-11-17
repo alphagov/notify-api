@@ -173,6 +173,7 @@ def create_email_notification():
     notification = Notification(
         to=notification_request['to'],
         message=notification_request['message'],
+        sender=notification_request['from'],
         status='created',
         method='email',
         created_at=datetime.utcnow(),
