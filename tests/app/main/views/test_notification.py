@@ -679,7 +679,8 @@ def test_should_allow_correctly_formed_email_request(notify_api, notify_db, noti
 
 def set_up_mock_queue(data, type):
     # set up mock queue
-    conn = boto3.resource('sqs', region_name='eu-west-1')
+    boto3.setup_default_session(region_name='eu-west-1')
+    conn = boto3.resource('sqs')
     q = conn.create_queue(QueueName='gov_uk_notify_queue')
     q.send_message(MessageBody=json.dumps(data),
                    MessageAttributes={'type': {'StringValue': type, 'DataType': 'String'}})

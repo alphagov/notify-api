@@ -71,6 +71,7 @@ def test_get_messages_from_queue_returns_message_queue(notify_api):
 
 
 def set_up_mock_queue():
+    boto3.setup_default_session(region_name='eu-west-1')
     conn = boto3.resource('sqs', region_name='eu-west-1')
     q = conn.create_queue(QueueName='gov_uk_notify_queue')
     return q
