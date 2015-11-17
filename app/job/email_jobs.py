@@ -16,7 +16,7 @@ def send_email():
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         try:
-            notifications = get_messages_from_queue()
+            notifications = get_messages_from_queue('email')
             for notification in notifications:
                 print("notification: {}".format(notification.body))
                 if notification.message_attributes.get('type').get('StringValue') == 'email':

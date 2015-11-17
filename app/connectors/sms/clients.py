@@ -165,6 +165,7 @@ class PlivoClient(SmsClient):
         #       }
         # )
         response = self.client.send_message(params)
+        self.log(response)
         self.log(message_id)
         if 'message_uuid' in response[1]:
             return response[1]['message_uuid'][0], self.identifier
