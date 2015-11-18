@@ -1,5 +1,5 @@
 import boto3
-from flask import json
+from flask import json, current_app
 
 email_queue_name = 'gov_uk_notify_email_queue'
 sms_queue_name = 'gov_uk_notify_sms_queue'
@@ -29,4 +29,4 @@ def get_queue_for_type(type):
 
 
 def get_queue(name):
-    return boto3.resource('sqs').create_queue(QueueName=name)
+    return boto3.resource('sqs', region_name=current_app.config['AWS_REGION']).create_queue(QueueName=name)

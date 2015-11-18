@@ -25,6 +25,8 @@ class Config(object):
     MAX_FAILED_LOGIN_COUNT = 5
     MAX_SERVICE_LIMIT = 100
 
+    AWS_REGION = 'eu-west-1'
+
 
 class Development(Config):
     DEBUG = True
