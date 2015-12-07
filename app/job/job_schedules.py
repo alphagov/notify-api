@@ -17,7 +17,7 @@ def send_sms_schedule():
     sched.add_job(func=fetch_sms_status, max_instances=1, id="sms_status_checking_job")
 
 
-@sched.scheduled_job('interval', minutes=1)
+@sched.scheduled_job('interval', seconds=10)
 def send_email_schedule():
     print("Running sending job Sending email")
     sched.add_job(func=send_email, max_instances=1, id="email_sending_job")
