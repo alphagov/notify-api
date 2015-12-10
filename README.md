@@ -72,6 +72,7 @@ All the application URLs can be displayed by running:
 ### Start job scheduler
 The job scheduler reads the notifications from the queue and sends them via a provider. 
 You will need to ask a member of the team for the export values below.
+
     export FROM_NUMBER=x
     export TWILIO_ACCOUNT_SID=x
     export TWILIO_AUTH_TOKEN=x
