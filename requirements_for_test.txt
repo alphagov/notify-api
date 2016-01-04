@@ -1,7 +1,8 @@
 -r requirements.txt
+-e git://github.com/gabrielfalcao/HTTPretty.git@8e323b580776cd23b7aa6cec2acc6e8d27ebd88a#egg=httpretty
 pep8==1.5.7
 pytest==2.8.1
 pytest-mock==0.8.1
 pytest-cov==2.2.0
 mock==1.0.1
-moto==0.4.18
+moto==0.4.19
