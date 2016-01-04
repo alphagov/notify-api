@@ -82,7 +82,10 @@ You will need to ask a member of the team for the export values below.
     export SENDGRID_API_KEY=x
     export SENDGRID_USERNAME=x
     export PYTHONPATH=.
+    AWS_ACCESS_KEY_ID=x
+    AWS_SECRET_ACCESS_KEY=x
     python app/job/job_schedules.py
+ 
 
 ### Domain model
 
