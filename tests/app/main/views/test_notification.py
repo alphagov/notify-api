@@ -611,6 +611,20 @@ def test_should_fetch_notification_by_job_id(notify_api, notify_db, notify_db_se
     assert data['notifications'][0]['message'] == 'this is a message'
 
 
+def test_should_fetch_notification_by_id(notify_api, notify_db, notify_db_session, notify_config):
+    response = notify_api.test_client().get(
+        "/notification/1234",
+        headers={
+            'Authorization': 'Bearer 1234'
+        })
+    data = json.loads(response.get_data())
+
+    assert response.status_code == 200
+    assert data['notification']['method'] == 'sms'
+    assert data['notification']['to'] == 'phone-number'
+    assert data['notification']['message'] == 'this is a message'
+
+
 @moto.mock_sqs
 def test_should_fetch_all_notifications_by_job_id(notify_api, notify_db, notify_db_session, notify_config):
     data_for_post = json.dumps({

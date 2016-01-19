@@ -12,11 +12,23 @@ from app.main.auth.token_auth import token_type_required
 from app.connectors.access_queue import send_messages_to_queue
 
 
+@main.route('/notification/<notification_id>', methods=['GET'])
+@token_type_required('client', 'admin')
+def fetch_notifications_by_id(notification_id):
+    incoming_token = get_token_from_headers(request.headers)
+    service = Service.query.join(Token).filter(Token.token == incoming_token).first_or_404()
+    print(service)
+    notification = Notification.query.join(Job).filter(
+        Job.service_id == service.id, Notification.id == notification_id).first_or_404()
+
+    return jsonify(notification=notification.serialize())
+
+
 @main.route('/notifications', methods=['GET'])
 @token_type_required('client', 'admin')
 def fetch_notifications():
     incoming_token = get_token_from_headers(request.headers)
-    service = Service.query.filter(Service.token == incoming_token).first_or_404()
+    service = Service.query.join(Token).filter(Token.token == incoming_token).first_or_404()
 
     notifications = Notification.query.join(Job).filter(Job.service_id == service.id).all()
 
