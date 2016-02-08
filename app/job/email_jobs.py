@@ -12,12 +12,12 @@ from app.connectors.access_queue import get_messages_from_queue
 
 
 def send_email():
-    print("Processing Email messages")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         try:
             notifications = get_messages_from_queue('email')
             for notification in notifications:
+                print("Processing Email messages")
                 print("notification: {}".format(notification.body))
                 if notification.message_attributes.get('type').get('StringValue') == 'email':
                     try:
@@ -39,13 +39,13 @@ def send_email():
 
 
 def fetch_email_status():
-    print("Processing Email status")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         notifications = Notification.query \
             .filter(Notification.status == 'sent') \
             .order_by(asc(Notification.sent_at)).all()
         for notification in notifications:
+            print("Processing Email status")
             try:
                 response_status = email_wrapper.status(notification.sender_id, notification.sender)
                 if response_status:
