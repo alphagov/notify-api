@@ -30,12 +30,12 @@ def __update_notification_in_error(e, id, sender):
 
 
 def send_sms():
-    print("Processing SMS messages")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         notifications = get_messages_from_queue('sms')
         for notification in notifications:
             if notification.message_attributes.get('type').get('StringValue') == 'sms':
+                print("Processing SMS messages")
                 try:
                     notification_body = json.loads(notification.body)
                     print("Processing {}".format(notification_body['id']))
@@ -52,13 +52,13 @@ def send_sms():
 
 
 def fetch_sms_status():
-    print("Processing SMS status")
     application = create_app(os.getenv('NOTIFY_API_ENVIRONMENT') or 'development')
     with application.app_context():
         notifications = Notification.query \
             .filter(Notification.status == 'sent') \
             .order_by(asc(Notification.sent_at)).all()
         for notification in notifications:
+            print("Processing SMS status")
             try:
                 response_status = sms_wrapper.status(notification.sender_id, notification.sender)
                 if response_status:
